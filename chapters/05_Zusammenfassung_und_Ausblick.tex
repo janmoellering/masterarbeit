@@ -1,0 +1,38 @@
+In diesem Kapitel werden die wesentlichen Inhalte dieser Arbeit zusammengefasst und anschließend ein Ausblick über mögliche Verbesserungen und Weiterentwicklungsmöglichkeiten gegeben.
+
+\section{Zusammenfassung}
+Diese Arbeit beschäftigt sich mit der Konzeptionierung und Realisierung eines Einzelprüfstands für Buchholz- und Gasrelais.
+\\
+Dazu wurde als erstes die Funktionsweise des Buchholz- und Gasrelais erklärt. Bei beiden Geräten handelt es sich um Schutzgeräte für flüssigkeitsisolierte  Leistungstransformatoren und Drosselspulen. Sie können beide eine Gasansammlung und einen Isolierflüssigkeitsverlust feststellen. Das Buchholzrelais kann zusätzlich noch eine Isolierflüssigkeitsströhmung erkennen.
+\\
+Nachdem ein Verständnis für das zu prüfende Gerät vermittelt wurde, folgt der Hauptteil der Arbeit. Einführend wird das gewählte Modulkonzept, die verwendeten Komponenten und die logischen Ebenen, in die der Prüfstand eingeteilt ist, beschrieben. Unter dem Modulkonzept wird verstanden, dass die zu bewältigenden Aufgaben zu Modulen zusammengefasst wurden. Diese Modularität ermöglicht es dem Prüfstand Komplexität zu verringern, hoch flexibel in seiner Erweiterbarkeit zu sein und die Module können für andere Projekte wiederverwendet werden. Logisch wurde der Prüfstand in die Prozessebene, Verarbeitungsebene und Darstellungsebene gegliedert.
+\\
+Bei der Entwicklung der Elektronik, wurde beschrieben wie die einzelnen Module aufgebaut sind und wie sie funktionieren. Ein Schwerpunkt wurde dabei auf das Temperaturmess-Modul und das Widerstandsmess-Modul gelegt, da sie den größten Entwicklungsaufwand gefordert haben.
+\\
+Die Elektronik musste ausschließlich für die Prozessebene entwickelt werden. Die Software dagegen für alle Ebenen. Für die Prozessebene wird das Programm beschrieben, welches auf dem ESP32 Mikrocontroller läuft und die Prozessebene steuert. Eine Besonderheit des Programms ist die Verwendung eines Echtzeitbetriebssystems.
+\\
+Das Programm für die Verarbeitungsebene wurde in JavaScript geschrieben. Die Programmiersprache unterscheidet sich in ihrer Funktionsweise dahingehende, dass sie den Schwerpunkt weniger auf synchrone Prozesse sondern mehr auf asynchrone Prozesse legt. Es werden Eventlistener definiert, die auf ein bestimmtes Ereignis warten und dann einen Programmcode ausführen.
+\\
+Die Darstellungsebene wurde in React programmiert. React ist ein auf JavaScript basierendes Framework, welches für das dynamische Erzeugen von grafischen Oberflächen verwendet wird. Es wird das Ergebnis der Programmierung, die grafische Oberfläche, vorgestellt.  Die grafische Oberfläche ist in vier Masken unterteilt. Die Übersicht gibt einen Überblick über alle wichtigen Sensoren auf einen Blick. Für die Temperaturmessung, Druckmessung und Gasvolumenmessung wurden eigene Masken erstellt.
+\\
+Als Abschluss des Hauptteils wurde auf die Kommunikation innerhalb des Prüfstands eingegangen. Der I2C-Bus ist für die Kommunikation innerhalb der Prozessebene zuständig. Die Kommunikation zwischen der Prozessebene und der Verarbeitungsebene erfolgt über USB. Für die Übermittlung der Informationen wird die Datenstruktur JSON verwendet. Die Datenstruktur bietet den Vorteil, dass sie relativ wenig Zeichen benötigt und direkt von JavaScript gelesen werden kann. Da sowohl die Verarbeitungsschicht, wie auch die Darstellungsschicht auf dem Raspberry Pi implementiert sind, erfolgt die Kommunikation zwischen diesen beiden Ebenen rein softwaremäßig. Das Framework Electron verwendet dafür die ipcMain und die ipcRenderer Funktionen.
+\\
+Am Ende wurden ausgewählte Teile des Prüfstands getestet. Damit konnte eine Aussage über die Präzision und Messgenauigkeit der entwickelten Bauteile gemacht werden. Außerdem wurde in einem Test der SAR ADC und der Delta-Sigma ADC untersucht und beide ADCs miteinander verglichen. Es wurde auch der verwendete Durchflussmesser untersucht.
+\\
+Die Ergebnisse der selbst entwickelten Module sind zufriedenstellend. Die Präzision ist sowohl beim Temperaturmess-Modul wie auch beim Wiederstandsmess-Modul nahe an der Referenz. Allerdings gibt es einen Drift in der Genauigkeit. So misst das Temperaturmess-Modul im Schnitt 0.4\,°C mehr als der Referenzwert und das Widerstandsmess-Modul gibt etwas zu kleine Widerstandswerte aus. Die Abweichungen sind aber so gering, dass beide Module für den Prüfstand verwendet werden können.
+\\
+Auch die Untersuchung und der Vergleich der ADC Typen zeigt, dass es die richtige Entscheidung war, sich für den Delta-Sigma ADC zu entscheiden. Seine Streuung ist deutlich geringer als die des SAR ADC und er liefert besser Messwerte.
+\\
+Die Untersuchung des Durchflussmessers hat leider gezeigt, dass er für das Messen des Gasvolumen einen zu ungenauen Messwert liefert. Die Streuung der Messwerte nimmt mit steigendem Durchflussvolumen zu.
+\\
+Abschließend kann gesagt werden, dass der entwickelte und realisierte Prüfstand, mit Ausnahme des Durchflussmessers, die gestellten Anforderungen erfüllt und von der Abteilung Technik für Reklamationen und der Entwicklung neuer Produkte verwendet werden kann.
+
+\newpage
+\section{Ausblick}
+Der Prüfstand wurde speziell mit dem Gedanken der Erweiterbarkeit entworfen. An dieser Stelle sollen mögliche Verbesserungen und Erweiterungen kurz vorgestellt werden.
+\\
+Zu der wahrscheinlich wichtigsten Verbesserung zählt das Austauschen des Durchflussmessers. Da der Prüfstand steigende und fallende Flanken des Sensorsignals zählt und die meisten Durchflussmesser ein Rechtecksignal ausgeben, stellt der Austausch keinen großen Aufwand dar. Der neue Durchflussmesser muss anschließend erneut überprüft werden. Es kann auch überlegt werden, die ausfließende Menge Öl nach einem anderen Messprinzip zu messen.
+\\
+Ein weiterer wichtiger Punkt, ist die Optimierung des Widerstandsmess-Moduls. Der Widerstand der Magnetschaltröhren ist für die Reklamationen von großer Bedeutung. Er kann mit dem bestehenden Messmodul schon genau gemessen werden. Der Test hat aber gezeigt, dass die Messwerte wahrscheinlich etwas geringer sind, als der richtige Wert. Es wäre von Vorteil diese Annahme näher zu untersuchen und gegebenenfalls eine bessere Stromquelle zu verwenden.
+\\
+Zum Schluss soll noch kurz auf die Möglichkeiten der verwendeten Webtechnologie eingegangen werden. In dem Prüfstand wurden die Webtechnologien einzig dafür verwendet eine optisch ansprechende Benutzeroberfläche zu generieren. Diese Technologie bieten aber deutlich mehr Möglichkeiten. Eine sinnvolle Entwicklung wäre zum Beispiel das Abspeichern der Messwerte in einer Datenbank, auf die online zugegriffen werden kann. Auch kann der Prüfer bei Langzeittests über Teilergebnisse, Fortschritt der Messung oder kritische Zustände informiert werden, ohne direkt am Prüfstand stehen zu müssen. Für diesen Prüfstand wird das nicht benötigt, aber die Möglichkeit kann für andere Projekte sinnvoll sein.

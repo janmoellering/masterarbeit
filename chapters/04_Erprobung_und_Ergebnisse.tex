@@ -1,0 +1,329 @@
+Um besser einschätzen zu können, wie verlässlich die Messwerte der Module und der Sensoren sind, müssen diese überprüft werden. Anschließend an die Konzeption des Prüfstandes, soll nachfolgend die Erprobung durchgeführt werden. Es wird das Temperaturmess-Modul, das Widerstandsmess-Modul, der ADC und der Druchflussmesser untersucht.
+
+\section{Untersuchung der Module}
+
+
+\subsection{Temperaturmess-Modul}
+Der Temperaturmessung kommt in der Industrie eine besondere Bedeutung zu. Es ist in vielen Bereichen wichtig die Temperatur mit zu betrachten. Dabei ist eine genaue Temperaturmessung verhältnismäßig schwierig. Nach der Abschätzung in Kapitel 3, kann mit dem Temperaturmess-Modul ein Pt1000 Widerstand mit einer Messunsicherheit von \(\pm 1.47\)\,°C \(+ 0.005 \cdot |t|\)\,°C gemessen werden. In dieser Untersuchung soll ein Pt1000 Temperaturmessfühler gegenüber dem Referenztemperatursensor TR33 von Wika bewertet werden.
+\\
+Dazu wird die Funktionalität des Prüfstands verwendet einen Pt1000 Temperaturmessfühler zu bewerten. Der Prüfstand misst dazu in einem Zeitraum von 60\,s im Abstand von 2\,s die Temperatur des Pt1000 Temperaturmessfühlers und des Referenztemperatursensors. Daraus wird über den Zeitraum die maximale absolute und relative Abweichung berechnet, sowie die durchschnittliche absolute und relative Abweichung.
+
+\subsubsection{Versuchsaufbau}
+Der Pt1000 Messwiderstand und der Referenztemperatursensor sind beide im Buchholzrelais, welches auf dem Prüfstand steht, verbaut. Das Relais ist mit Öl, dessen Temperatur der Umgebungstemperatur entspricht, gefüllt. Die Temperaturmessung am Prüfstand wird 20 mal durchgeführt.
+
+\subsubsection{Versuchsdurchführung}
+Auf der Bedienoberfläche für die Temperaturmessung wird die Referenztemperatur und die Temperatur des Pt1000 angezeigt. Es wird 60\,s gewartet, bis genügend Messungen durchgeführt wurden. Dann wird mit mit dem Loggen Button für die Messreihe ein Protokoll erstellt, aus dem dann die Ergebnisse entnommen werden. Dieser Vorgang wird 20 mal wiederholt.
+
+\subsubsection{Auswertung}
+\begin{figure*}[h]
+	\centering
+	\includegraphics[width=12cm]{temperaturmessung.png}
+	\caption{Messwertdarstellung zur Untersuchung der Temperaturmessung\\
+	(blau: Pt1000, rot: Referenztemperatur)}
+	\label{fig: messung_temp}
+\end{figure*}
+
+\noindent
+An Abbildung \ref{fig: messung_temp} ist zu erkennen, dass die Spannweite, mit der die Messwerte streuen, sowohl beim Pt1000, wie auch beim Messgerät, ähnlich ist. Die Messwerte sind bei der Messung mit dem Temperaturmess-Modul, im Vergleich zur Referenztemperaturmessung, allerdings um durchschnittlich 0.4\,°C höher.
+\\
+Es liegt die Vermutung nahe, dass entweder die Eingangsspannung der Messbrücke des Temperaturmess-Moduls oder deren Widerstände nicht richtig bestimmt wurden. Es müsste eine weitere Messung durchgeführt werden, bei der die Temperaturabweichung, zwischen dem Temperaturmess-Modul und dem Referenztemperatursensor, bei unterschiedlichen Temperaturen aufgenommen wird. An einer solchen Messung wird deutlich, ob die Abweichung temperaturabhängig ist, oder bei allen Temperaturen gleich bleibt. Es besteht leider noch keine Möglichkeit eine solche Messung auf dem Prüfstand durchzuführen.
+\\
+Auch sollten mehrere Pt1000 Temperaturwiderstände mit dem Modul untersucht werden, um eine aussagekräftige Auswertung über das Temperaturmess-Modul unabhängig vom Temperaturmessfühler machen zu können. Auch diese Messung war nicht möglich, weil nur ein Pt1000 Messfühler zur Verfügung steht.
+\\
+Die gemessene Abweichung liegt mit 0.4\,°C im Bereich der geschätzten Abweichung von \(\pm 1.47\)\,°C und das Temperaturmess-Modul liefert einen brauchbaren Messwert.
+
+\newpage
+\subsection{Widerstandsmess-Modul}
+Im Anschlusskasten des Buchholzrelais und Gasrelais gibt es einen Anschluss für einen Schutzleiter. Dieser Schutzleiteranschluss ist allerdings nur mit dem Gehäuse und nicht direkt mit dem Deckel verbunden. Um die Schutzfunktion des Schutzleiters für das gesamte Relais sicherzustellen, muss eine leitende Verbindung zwischen Gehäuse und Deckel bestehen. Laut VDE 0701-0702 Norm liegt der Grenzwert bei 0.3\,\(\Omega\). Für die interne Prüfung wäre es ausreichend, eine Aussage darüber treffen zu können, ob eine elektrisch leitende Verbindung besteht oder nicht.
+\\
+Da aber nicht nur der Widerstand zwischen Gehäuse und Deckel interessant ist, sondern auch der Übergangswiderstand der Schaltröhren, wurde ein Widerstandsmess-Modul entwickelt, mit dem kleine Widerstände gemessen werden können. Dieses Widerstandsmess-Modul soll hier getestet werden.
+
+\subsubsection{Versuchsaufbau}
+Das Widerstandsmess-Modul wird an vier Widerstandswerten getestet: 1\,\(\Omega\), 2.2\,\(\Omega\), 4.7\,\(\Omega\) und 5.6\,\(\Omega\). Die Widerstände haben eine Toleranz von 1\,\% und für jeden Widerstandswert werden 20 Widerstände gemessen. Als Referenzwert wurde zusätzlich mit dem Messgerät MI3121 von Metrel der Widerstand gemessen. Das Messgerät bietet den Vorteil, dass durch eine Kalibrierung der Leiterwiderstand herausgerechnet wird.
+
+\subsubsection{Versuchsdurchführung}
+\begin{figure*}[h!]
+	\centering
+	\begin{subfigure}[b]{0.475\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{widerstand_messungen/widerstandswert_1R.png}
+		\caption{\small Widerstandswert 1\,\(\Omega\)}
+		\label{fig: 1R}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.475\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{widerstand_messungen/widerstandswert_2R2.png}
+		\caption{\small Widerstandswert 2.2\,\(\Omega\)}
+		\label{fig: 2R2}
+	\end{subfigure}
+	\vskip\baselineskip
+	\begin{subfigure}[b]{0.475\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{widerstand_messungen/widerstandswert_4R7.png}
+		\caption{\small Widerstandswert 4.7\,\(\Omega\)}
+		\label{fig: 4R7}
+	\end{subfigure}
+	\quad
+	\begin{subfigure}[b]{0.475\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{widerstand_messungen/widerstandswert_5R6.png}
+		\caption{\small Widerstandswert 5.6\,\(\Omega\)}
+		\label{fig: 5R6}
+	\end{subfigure}
+	\caption{Ergebnisse der Widerstandsmessungen\\
+	(dunkelblau: Messwerte des Widerstandsmess-Modul, rot: Messwerte des Metrel 3121 Messgerät, hellblau: Toleranzbereich der Widerstände)}
+\end{figure*}
+\noindent
+Die Widerstände wurden erst mit dem Widerstandsmess-Modul gemessen. Dabei war das Wiederstandsmess-Modul an den Prüfstand angeschlossen und der Widerstandswert konnte der grafischen Oberfläche entnommen werden. Anschließend wurde der Widerstand mit dem Messgerät von Metrel gemessen und beide Werte notiert. Das wurde für alle 20 Widerstände und für alle vier Widerstandswerte durchgeführt.
+\\
+Die Messwerte wurden mit Matlab in eine übersichliche Form gebracht.
+
+\subsubsection{Auswertung}
+Die Darstellung der Messungen zeigt gute Ergebnisse. Auffällig ist, dass die gemessene Werte zwar der erwarteten Spannweite der Widerstände entsprechen, aber niedriger liegen als erwartet. Gäbe es die Vergleichsmessung mit dem Messgerät MI3121 nicht, könnte angenommen werden es gibt einen Kalibrierungsfehler im Widerstandsmess-Modul. Es hätte darauf hindeuten können, dass der Strom nicht richtig gemessen wurde und dadurch ein falscher Widerstandswert berechnet wird. Da das Metrel MI3121 den gleichen Messfehler aufweist, liegt die Vermutung nahe, dass die Ursache des Messfehlers außerhalb der beiden Messgeräte liegt.
+\\
+An dieser Stelle soll aber die Tatsache ausreichen, dass das Widerstandsmess-Modul hinreichend genau den Widerstand messen kann. Die Abweichung nach unten ist so gering, dass sie für die Funktionalität nicht bedeutend ist.
+
+\section{Untersuchung des SAR ADC und Delta-Sigma ADC}
+Viele Sensoren und Messumformer liefern analoge Ausgangssignale. Analoge Signale können aber nicht mit einem digitalen Gerät, wie einem Mikrocontroller oder Computer, verarbeitet werden. Dafür müssen die analogen Signale erst in digitale Signale umgewandelt werden. Für diese Aufgabe wurden Analog-Digital Umsetzer entwickelt. Sie werden auch ADC (englisch: \textit{Analog-Digital Converter}) genannt. Sie bilden die Schnittstelle zwischen der analogen und der digitalen Welt.
+\\
+Der Analog-Digital Umsetzer ist eines der wichtigsten Elemente des Prüfstands. Er hat einen direkten Einfluss auf die Qualität der Messungen. Das Ergebnis der Messung kann nur so gut sein, wie der verwendete ADC. Es ist deshalb wichtig die in Frage kommenden ADCs zu untersuchen.
+\\
+Im ESP32 Mikrocontroller ist ein 12-Bit SAR ADC verbaut. Es lag daher nahe diesen ADC zu verwenden. Aufgrund von ungenauen und zu stark schwankenden Messergebnissen wurde nach einer Alternative gesucht. Eine Übersicht der drei gängigsten ADC Typen ist in Abbildung \ref{adc_vergleich} dargestellt. Eine Alternative ist der Delta-Sigma ADC.
+\\
+Diese beiden ADCs sollen an dieser Stelle untersucht werden. Erst wird eine kleine Einführung in die Funktionsweisen der beiden ADCs gegeben, dann wird der Versuchsaufbau und die Versuchsdurchführung beschrieben und am Ende die Ergebnisse diskutiert.
+\begin{figure}[h!]
+\vspace{12pt}
+\centering
+\includegraphics[width=12cm]{adc_performance_2013.png}
+\caption{ADC Performanz Vergleich (Quelle: \cite[][S. 26]{Ohnhaeuser2015} - teilweise modifiziert)}
+\label{adc_vergleich}
+\vspace{12pt}
+\end{figure}
+
+\subsection{Funktionsweise des SAR ADC}
+\begin{figure}[h]
+\centering
+\includegraphics[width=12cm]{sar_adc.eps}
+\caption{Blockschaltbild SAR ADC vgl. \cite{Kester2005}}
+\end{figure}
+\noindent
+Der SAR ADC ist einer der meistverbreitesten ADCs. Er ist in fast allen Mikrocontrollern verbaut und auch im ESP32. Seine große Verbreitung ist auf seinen einfachen Aufbau und damit geringen Herstellungkosten zurückzuführen.
+\cite{Kester2005}
+\\
+Sein Aufbau besteht aus einem Komparator, dem sukzessiven Approximationsregister (SAR), einem Digital-Analog Umsetzer (DAC) und einem Speicher- und Halteglied (S/H).
+\cite[][S. 29]{Ohnhaeuser2015}
+Soll eine Umwandlung durchgeführt werden, speichert zuerst das Speicher- und Halteglied die anliegende Spannung. Im Anschluss vergleicht der Komparator die anliegende Spannung mit einer Prüfspannung, die der Hälfte der Referenzspannung entspricht. Je nachdem ob die anliegende Spannung größer oder kleiner ist, wird im nächsten Schritt die Hälfte der letzten Prüfspannung zur letzten Prüfspannung hinzugezählt oder abgezogen. Daraus resultiert die neue Prüfspannung für den nächsten Vergleich. Anschließend wird ein neuer Vergleich durchgeführt. Diese Schritte werden je nach Auflösung des ADC unterschiedlich oft wiederholt. Bei einem 10-Bit ADC werden 10 Vergleiche pro Messung durchgeführt.
+\cite[][S. 29]{Ohnhaeuser2015}
+Der große Vorteil des SAR-ADC ist seine hohe Abtastrate. Die hohe Abtastrate führt zu einer geringeren Präzision.
+
+\subsection{Funktionsweise des Delta-Sigma ADC}
+Der Delta-Sigma ADC erreicht mit seiner Umwandlungsmethode eine der höchsten Auflösungen unter den ADCs\cite[][S. 31]{Ohnhaeuser2015}. Durch eine Verschiebung des Rauschens in höhere Frequenzbereiche erreicht er außerdem eine hohe Präzision. Seine hohe Auflösung geht dabei allerdings auf Kosten der Abtastrate. Deshalb wird der Delta-Sigma ADC oft da eingesetzt, wo genaue aber keine schnellen Messungen durchgeführt werden müssen. Dies ist bei dem Prüfstand sowohl bei der Temperaturmessung, als auch bei der Widerstandsmessung der Fall. Deshalb wurde sich bei den Messungen für den Prüfstand für den Delta-Sigma ADC entschieden.
+\cite{Baker2011_1}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=12cm]{delta-sigma_adc.png}
+\caption{Blockschaltbild Delta-Sigma ADC (Quelle: \cite{Baker2011_1} - teilweise modifiziert)}
+\end{figure}
+
+\noindent
+Der Aufbau besteht aus einem Delta-Sigma Modulator und einem digital dezimierenden Filter.
+\\
+Der Delta-Sigma Modulator erzeugt aus dem Eingangssignal eine modulierte Pulsfolge. Der Wert des Eingangssignals ist in der Länge der Puls- und Pausenzeiten kodiert. Zusätzlich verringert er noch das Rauschen in niedrigen Frequenzbereichen. Dies wird durch die Technik Rauschumformung, bei der das Rauschen aus niedrigen Frequenzbereichen in höhere Frequenzbereiche verschoben wird, erreicht. Aus diesem Grund ist der Delta-Sigma ADC besonders gut für Messungen geeignet, die eine hohe Genauigkeit benötigen und eine niedrige Frequenz haben.
+\cite{Baker2011_2}
+\\
+Der digital dezimierende Filter sind genau genommen zwei Filter. Der digitale Filter wandelt die Pulsfolge in ein digitales Signal um. Der dezimierende Filter verringert die Frequenz des digitalen Ausgangssignals. Dies ist eine weitere Stärke des Delta-Sigma ADCs. Die Abtastrate ist mehrere hundertmal höher als seine Ausgaberate. Dies wird dadurch erreicht, dass der dezimierende Filter von einer bestimmten Anzahl an Messungen den Durchschnitt bildet und diesen Wert im Anschluss ausgibt. Damit wird die Präzision noch weiter gesteigert.
+\cite{Baker2011_2}
+
+\subsection{Versuchsaufbau}
+Es soll untersucht werden wie stark die Messwerte der verschiedenen ADC Typen streuen. Für die Untersuchung werden folgende Dinge benötigt:
+
+\begin{itemize}
+\itemsep0em
+	\item Eine konstante Spannungsquelle
+	\item Eine Möglichkeit den SAR ADC und den Delta-Sigma ADC auszulesen
+	\item Eine Möglichkeit die Messwerte darzustellen und auszuwerten.
+\end{itemize}
+
+\subsubsection{Auswahl der Spannungsquelle}
+Die Spannungsquelle ist die Grundlage der Untersuchung. An ihr wird der ADC bewertet. Daher muss das Verhalten der Spannungsquelle bei der Untersuchung des ADC mit einbezogen werden. Es ist eine Spannungsquelle zu wählen die sehr konstant ist und ein geringes Rauschverhalten aufweist. Es wurden vier Spannungsquellen untersucht: Der 3,3\,V Ausgang des Mikrocontrollers, 1.56\,V Ausgang des linearen Spannungsregler LM317, Spannungsabfall über einer Diode und die 1,08\,V Referenzspannung des ESP32 Mikrocontrollers.
+\begin{figure*}[h!]
+	\centering
+	\begin{subfigure}[b]{0.475\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{spannungsquelle/3_3V.png}
+		\caption{\small 3,3\,V Ausgang Mikrocontroller}
+		\label{fig: 3_3V}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.475\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{spannungsquelle/lm317.png}
+		\caption{\small 1,56\,V LM317}
+		\label{fig: lm317}
+	\end{subfigure}
+	\vskip\baselineskip
+	\begin{subfigure}[b]{0.475\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{spannungsquelle/diode.png}
+		\caption{\small 0.66\,V Spannungsabfall Diode}
+		\label{fig: diode}
+	\end{subfigure}
+	\quad
+	\begin{subfigure}[b]{0.475\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{spannungsquelle/v_ref.png}
+		\caption{\small 1,08\,V Referenzspannung ESP32}
+		\label{fig: v_ref}
+	\end{subfigure}
+	\caption{Rauschverhalten verschiedener Spannungsquellen\\
+	(dargestellt mit einer Auflösung von 2\,mV\,/\,div)}
+\end{figure*}
+\\
+\noindent
+Wie zu erwarten weißt der 3,3 V Ausgang des Mikrocontrollers das schlechteste Rauschverhalten auf. Wie in Abbildung \ref{fig: 3_3V} zu sehen ist, rauscht das Signal mit einer Amplitude von etwa 10\,mV.
+\\
+Die Spannungsquelle des LM317 verbessert das Ergebnis bereits. In Abbildung \ref{fig: lm317} ist zu sehen, dass das Grundrauschen sich deutlich verringert. Es sind allerdings starke Ausreißer zu sehen.
+\\
+Weil die Ausreißer die Messergebnisse zu sehr beeinflusst haben, wurde der Spannungsabfall über einer Diode als Referenzspannung genommen. An Abbildung \ref{fig: diode} ist zu sehen, dass der Spannungsabfall über der Diode das beste Rauschverhalten 
+hat. Es sind wenige Spannungsspitzen mit einer Amplitude von etwa 6\,mV zu sehen. Diese sind aber verhältnismäßig selten, weswegen sie die Messung nicht verfälschen sollten, beziehungsweise erkannt werden können. Der erste Versuchsdurchlauf wurde mit einer Schaltung durchgeführt, bei der aus dem 3,3\,V Ausgang des Mikrocontrollers mit dem linearen Spannungsregler ein Spannungssignal von 1,56\,V erzeugt wurde. Diese Spannung wurde dann wiederum an einen Widerstand und eine Diode angelegt um an der Diode einen Spannungsabfall zu bekommen, der möglichst rauscharm ist.
+\\
+Zudem wurde das Rauschverhalten der internen Referenzspannung des Mikrocontrollers ESP32 untersucht. In Abbildung \ref{fig: v_ref} ist zu sehen, dass das Signal ein wenig mehr rauscht als der Spannungsabfall über der Diode. Wiederum weißt das Signal geringere Spannungsspitzen auf. Diese Spannung kann allerdings nicht als Referenzspannung für den Versuch genommen werden, weil ein ADC nicht gegenüber seiner eigenen Referenzspannung bewertet werden kann.
+
+\subsubsection{Auslesen der ADCs}
+Die ADCs werden mit dem Mikrocontroller ESP32 ausgelesen. Der SAR ADC ist direkt in dem Mikrocontroller verbaut. Der Delta-Sigma ADC wurde auch im Prüfstand verwendet und ist als externes Modul ausgeführt. Er wird über einen I2C-Bus vom ES32 gesteuert und ausgelesen. Für den Versuch wurde ein Programm geschrieben, welches bis zu einer Schalterbetätigung abwartet, im Anschluss 100 Messungen durchführt und die erzielten Messungen über den UART ausgibt
+
+\subsubsection{Auswertung und Darstellung der Messergebnisse}
+Die Messergebnisse werden vom Mikrocontroller über den UART gesendet. Da sich im ESP32 ein UART zu USB Umwandler befindet, können die Messwerte am Computer über die USB-Schnittstelle empfangen werden.\\
+Am Computer werden die Messwerte von Matlab eingelesen und geplottet. In Matlab wurden die Messwerte auch weiterverarbeitet und analysiert. Zum Einlesen der Messwerte und zum anschließenden Darstellen wurde ein Skript geschrieben. Dieses Skript wartet auf 100 eingehende Messdaten, speichert diese und wiederholt den Prozess zweimal. Am Ende plottet das Skript alle gespeicherten Messwerte in ein Diagramm zur weiteren Auswertung.
+
+\subsection{Auswertung des SAR ADC}
+
+\begin{figure*}[h]
+	\centering
+	\includegraphics[width=12cm]{adc_messungen/messung_sar_adc.png}
+	\caption{Messdurchlauf SAR ADC}
+	\label{fig: messung_sar_adc}
+\end{figure*}
+\noindent
+An Abbildung \ref{fig: messung_sar_adc} ist das Streuungsverhalten des SAR ADC zu sehen. Die gesamte Steuungsspannweite sind in etwa 60\,mV was für die Messungen des Prüfstands zu viel ist. Die Standardabweichung der Messdurchläufe beträgt:
+\begin{itemize}
+\itemsep0em
+\item 1. Messdurchlauf: 20,24
+\item 2. Messdurchlauf: 15,76
+\item 3. Messdurchlauf: 21,67
+\end{itemize}
+Durch Methoden wie Überabtastung könnte das Ergebnis noch weiter verbessert werden.
+
+\subsection{Auswertung des Delta-Sigma ADC}
+
+\begin{figure*}[h]
+	\centering
+	\includegraphics[width=12cm]{adc_messungen/messung_ds_adc.png}
+	\caption{Messdurchlauf Delta-Sigma ADC}
+	\label{messung_ds_adc}
+\end{figure*}
+\noindent
+An der Abbildung \ref{messung_ds_adc} ist deutlich zu sehen, dass Delta-Sigma ADCs sehr genau arbeiten. Eine Streuung ist kaum zu erkennen und alle Werte liegen um 662\,mV was auch mit der Messung des Oszilloskops übereinstimmt. Die Standardabweichung der Messdurchläufe beträgt:
+\begin{itemize}
+\itemsep0em
+\item 1. Messdurchlauf: 0,50
+\item 2. Messdurchlauf: 0,31
+\item 3. Messdurchlauf: 0,31
+\end{itemize}
+\noindent
+Es ist zu sehen, dass die Messung des Delta-Sigma ADCs genauer ist als das gemessene Signal. Das Rauschen ist nicht in den Messergebnissen zu sehen, weil der ADC von seiner Architektur her einen Durchschnittswert des gemessenen Signals ausgibt. Aus diesem Grund eignet sich der Delta-Sigma ADC sehr gut für genaue Messungen. 
+
+\subsection{Gegenüberstellung SAR ADC und Delta-Sigma ADC}
+In dem Versuch wurde die Präzision der beiden ADC Typen getestet. Werden die beiden ADCs hinsichtlich ihrer Präzision gegenübergestellt, schneidet der Delta-Sigma ADC deutlich besser ab als der SAR ADC. Auch die Genauigkeit ist bei dem Delta-Sigma ADC besser. Der große Vorteil der SAR ADCs, seine hohe Abtastrate, wird bei den Messungen des Prüfstands nicht benötigt. Dafür werden sehr präzise und genaue Messungen benötigt. Eine Abtastrate von 10ms ist dabei völlig ausreichend. Aus diesen Gründen wurde sich für den Delta-Sigma ADC entschieden.
+
+\section{Untersuchung des Durchflussmessers}
+An dem Prüfstand soll eine Gasvolumenmessung durchgeführt werden. Dabei wird das Gasvolumen im Relais über die auslaufende Menge an Öl gemessen. Es wird der Durchflussmesser FCH-C-Ms, der Firma Biotech, verwendet. Durch firmeninterne Tests hat sich der Sensor als geeignet herausgestellt. Da es sich bei dem Sensor um einen Durchflussmesser für Wasser handelt und der firmeninterne Test nicht sehr aussagekräftig ist, soll der Sensor erneut überprüft werden. Der Sensor misst die durchfließende Menge mittels einer Turbine. Es wird ein Rechtecksignal ausgegeben, dessen Frequenz der Drehzahl der Turbine entspricht. Das Steuerungsmodul misst die Anzahl der steigenden und fallenden Flanken des Rechtecksignals und soll daraus das Volumen des ausgelaufenen Öls berechnen.
+\\
+Die Gasvolumenmessung ist wichtig, weil darüber die Schaltpunkte der Schwimmer bestimmt werden und die Strom-Gasvolumen Kennlinie des CP38 Füllstandsensor aufgenommen wird.
+\\
+\\
+Um den Durchflussmesser bewerten zu können, werden drei Messreihen aufgenommen:
+\begin{enumerate}
+	\item Verhältnis des ausgelaufenen Volumen zur Pulszahl:\\
+	Anhand dessen soll die Linearität des Sensors untersucht werden. Es wird eine lineare Regression durchgeführt und sich angeschaut wie stark die Messwerte um die linearisierte Funktion streuen.
+	\item Verhältnis des aufgelaufenen Volumen zur Pulszahl bei einem höheren Druck:\\
+	Daran soll untersucht werden, ob der Druck, mit dem das Öl durch den Sensor fließt, einen Einfluss auf die Pulszahl hat. Die aufgenommenen Messwerte werden mit den Messwerten bei einem geringeren Druck verglichen.
+	\item Mehrere Messungen bei gleichem Auslaufvolumen:\\
+	Es wird die Wiederholgenauigkeit untersucht, um eine Aussage über die Messungenauigkeit treffen zu können.
+\end{enumerate}
+
+\subsection{Versuchsaufbau}
+Der Durchflussmesser wird im Prüfstand getestet. Der Prüfstand zählt die steigenden und fallenden Flanken und gibt die aufsummierte Anzahl auf der grafischen Oberfläche aus. Ein Magnetventil, welches über die grafische Oberfläche des Prüfstands angesteuert wird, ist für das Öffnen und Schließen des Ablaufs zuständig. Die abgelaufene Menge an Öl wird mit einem Messbecher aufgefangen und gewogen. Es wurde die Laborwaage FCE6K2N der Firma KERN \& SOHN GmbH verwendet. Die Waage hat laut Datenblatt eine Wiederholgenauigkeit von 2\,g, welche bei der Bewertung des Sensors mit beachtet werden muss \cite{fce6k2n_datasheet}. Aus dem Gewicht wird über die Dichte das Volumen berechnet.
+Die Dichte wurde mit folgender Formel berechnet \cite{Watter2017}:
+\begin{equation}
+	\rho_t = \rho_{20} \cdot [1 - \alpha \cdot (t - 20)]
+\end{equation}
+\vspace{12pt}
+\begin{tabular}{c l}
+	\textbf{Legende:}\\
+	\(\rho_{20}\) & Dichte bei 20\,°C laut Datenblatt \(805\,\frac{kg}{m^3}\) \cite{shell_datasheet}\\
+	\(\rho_{t}\) & Dichte bei Temperatur t in °C\\
+	\(\alpha\) & Volumenkorrekturfaktor für Mineralöl \(0.65 \cdot 10^{-3}K^{-1}\)\\
+\end{tabular}
+\vspace{24pt}
+\\
+\noindent
+Es wurde eine Raum- und Öltemperatur von 27\,°C gemessen. Das ergibt für das Öl eine Dichte von \(801.34\,\frac{kg}{m^3}\).
+
+\subsection{Versuchsdurchführung}
+
+\subsubsection{Verhältnis von Volumen zur Pulszahl}
+Es soll zu unterschiedlichen Volumen ausgelaufenen Öls, die Pulszahl aufgenommen werden. Dazu wurde vor jeder Messung das Buchholzrelais vollständig mit Öl gefüllt. Über eine Button auf der grafischen Oberfläche wurde dann das Magnetventil geöffnet. Das auslaufende Öl wird mit einem Messbecher aufgefangen. Wenn der Messbecher sich mit der gewünschten Menge Öl gefüllt hat, wird das Magnetventil wieder geschlossen. Das Gewicht und die Pulszahl wird notiert. Um eine möglichst gleichmäßige Verteilung der Messwerte zu erhalten, wurde der Messbereich von 0 - 500\,\(cm^3\) in fünf Bereiche unterteilt: 0 - 100\,\(cm^3\), 100 - 200\,\(cm^3\), 200 - 300\,\(cm^3\), 300 - 400\,\(cm^3\), 400 - 500\,\(cm^3\). Für jeden Bereich wurden 20 Messungen durchgeführt.
+
+\subsubsection{Verhältnis von Volumen zur Pulszahl bei höherem Druck}
+Es wurde fast die gleiche Messung durchgeführt wie für das Verhältnis von Volumen zur Pulszahl. Der Unterschied bestand darin, dass das Öl nicht aus dem Buchholzrelais, sondern aus dem Reservoir auslief. Das Reservoir sitzt deutlich höher als das Buchholzrelais, was zu einem höheren Druck des auslaufenden Öls führt. Es wurden für jeden der fünf Messbereiche nur 10 Messungen statt 20 Messungen durchgeführt.
+
+\subsubsection{Wiederholgenauigkeit}
+Für die Wiederholgenauigkeit wurde die Gasvolumenmessung des Prüfstands verwendet. Es kann eingestellt werden, dass das Magnetventil automatisch beim Schalten der Magnetschaltröhren schließt. Für eine Messung wurde das Buchholzrelais vollständig mit Öl gefüllt. Dann wurde die Gasvolumenmessung gestartet und das auslaufende Öl mit einem Messbecher aufgefangen. Das Magnetventil schließt immer bei dem gleichen Wert. Das ausgelaufene Öl wurde gewogen und das Gewicht zusammen mit der Pulszahl aufgeschrieben.
+\newpage
+\subsection{Auswertung}
+
+An Abbildung \ref{messung_volumen_puls} ist deutlich zu sehen, dass es sich um einen linearen Verlauf handelt. Die lineare Regression hat eine Steigung von 1.4543 ergeben. Dieser Faktor wird für die Umrechnung von Pulsen in Volumen verwendet und gibt eine gute Approximation.
+\begin{figure*}[h]
+	\centering
+	\includegraphics[width=10cm]{durchflussmesser_messungen/verh_volumen_pulse.png}
+	\caption{Verhältnis von Volumen zur Pulszahl}
+	\label{messung_volumen_puls}
+\end{figure*}
+\noindent
+Um den Sensor weiter zu bewerten, wurde der Fehler berechnet, der durch die Regression entsteht und ins Verhältnis zum Volumen gesetzt. Das Ergebnis zeigt die Streuung der Messwerte um den Sollwert laut Regression.
+\begin{figure*}[h]
+	\centering
+	\includegraphics[width=10cm]{durchflussmesser_messungen/verh_fehler_volumen.png}
+	\caption{Verhältnis vom Fehler der Regression zum Volumen}
+	\label{messung_fehler_volumen}
+\end{figure*}
+\noindent
+An der Abbildung \ref{messung_fehler_volumen} ist zu sehen, dass die Streuung der Messwerte mit steigendem Volumen zunimmt. Bei einem ausgeliterten Volumen von 500\,\(cm^3\) beträgt der Fehler bis zu 15\,\(cm^3\). Da der Prüfstand nur bis zu einem Volumen von 300\,\(cm^3\) messen muss, ist der Fehler akzeptabel.
+\\
+\\
+Damit der Einfluss des Drucks, mit dem das Öl durch den Durchflussmesser fließt, bewertet werden kann, wurden die Messungen des ersten Versuchs mit einem höheren Druck wiederholt.
+\begin{figure*}[h]
+	\centering
+	\includegraphics[width=10cm]{durchflussmesser_messungen/einfluss_druck.png}
+	\caption{Der Einfluss von Druck auf Messung des Durchflussmessers}
+	\label{messung_einfluss_druck}
+\end{figure*}
+\noindent
+An Abbildung \ref{messung_einfluss_druck} ist zu sehen, dass der Druck keinen Einfluss auf die Messwerte hat. Da es sich um einen kleinen Druckunterschied handelt, kann der Einfluss des Drucks nicht vollständig ausgeschlossen werden. Es kann aber gesagt werden, dass die Druckschwankungen, die im Prüfstand auftreten können, keinen Einfluss auf die Messungen haben.
+\\
+\\
+Die Messung der Wiederholgenauigkeit wurde unter anderen Bedingungen durchgeführt, weil die interne Gasvolumenmessung des Prüfstands verwendet wurde. An den Messergebnissen in Abbildung \ref{messung_wiederholgenauigkeit} ist nicht nur eine hohe Streuung von bis zu 17\(cm^3\) zu sehen, es ist auch zu sehen, dass der Umrechnungsfaktor von Pulsen auf Volumen von 1.4543 nicht mehr passt. Wird der Umrechnungsfaktor von der Messreihe der Wiederholgenauigkeit berechnet, ergibt sich ein Wert von 1.5134.
+\begin{figure*}[h]
+	\centering
+	\includegraphics[width=10cm]{durchflussmesser_messungen/wiederholgenauigkeit.png}
+	\caption{Darstellung der Wiederholgenauigkeit}
+	\label{messung_wiederholgenauigkeit}
+\end{figure*}
+\noindent
+An der Abbildung \ref{messung_wiederholgenauigkeit} ist zum Einen die Streuung zu sehen und zum Anderen, dass die berechneten Volumenwerte unter den tatsächlichen Volumenwerten liegen.
+\\
+\\
+Die Auswertung der Messergebnisse hat ergeben, dass der Sensor sehr stark streut. Gerade bei größeren Durchflussmengen ist die Streuung sehr hoch. Auch ist zu erkennen, dass die Streuung mit steigender Durchflussmenge zunimmt was die Verwendbarkeit des Sensors in Frage stellt. Die Tatsache, dass der Umrechnungsfaktor zwischen den Messungen sich so stark unterscheidet, lässt zusätzlich zu der steigenden Streuung Bedenken zur Verwendbarkeit des Sensors aufkommen. Wird sowohl die steigende Streuung wie auch die Tatsache des schwankenden Umrechnungsfaktors betrachtet, kann zusammenfassend gesagt werden, dass sich der Sensor nicht für den Prüfstand eignet. Die Streuung und die daraus resultierende Messungenauigkeit ist zu hoch um aussagekräftig genug messen zu können. Ein Teil der Streuung lässt sich auf die Ungenauigkeit der Waage zurückführen. Bei 2\,g ist das allerdings nicht relevant und ist maximal für eine Streuung von 2.5\,\(cm^3\) verantwortlich. Bei Messungen von geringen Durchflussmengen ist die Streuung zu vertreten. 

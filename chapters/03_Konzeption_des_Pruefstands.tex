@@ -1,0 +1,804 @@
+Der Prüfstand muss in der Lage sein, mehrere unterschiedliche Messungen durchzuführen. Die gemessenen Werte müssen angezeigt und gegebenenfalls gespeichert werden. Zu den durchzuführenden Messungen zählt das Auslesen des Schaltzustands der Magnetschaltröhren, die Temperaturmessung, die Druckmessung, die Gasvolumenmessung und das Messen von kleinen Widerständen.
+\\
+Im Folgenden soll als erstes auf das grundlegende Konzept des Prüfstands eingegangen werden. Dadurch wird ein Überblick vermittelt, wie der Prüfstand aufgebaut ist. Danach wird die Auswahl der Komponenten näher erläutert. Als Hauptteil folgt die Entwicklung der Elektronik und der Software. Abschließend wird die Kommunikation innerhalb des Prüfstands betrachtet.
+
+\section{Modulkonzept}
+Bei dem grundlegenden Konzept, wurde sich für ein Modulkonzept entschieden. Von dem Prüfstand wird verlangt, dass er hoch flexibel ist. Die Geräte, die auf dem Prüfstand getestet werden, sind sehr unterschiedlich. Es sind verschiedene Arten von Sensoren verbaut, die verschiedene Arten von Messungen abverlangen. Es können Temperatursensoren, Drucksensoren, Temperaturschalter, Druckschalter, Füllstandsensoren und Feuchte-in-Öl Sensoren verbaut sein. Auch ist nicht sicher, ob die Funktionalität des Prüfstands, wie er hier entworfen wird, in der Zukunft noch ausreichend ist. Das Modulkonzept wurde deshalb gewählt, weil es diese Flexibilität ermöglicht. Wenn es für jede Messung ein Modul gibt, können in Zukunft nicht mehr benötigte Module entfernt und neue Module ergänzt werden.
+\\
+Ein weiterer Grund für das Modulkonzept ist die Tatsache, dass die einzelnen entworfenen Module für andere Projekte wiederverwendet werden können. Wenn Messgeräte oder ähnliche Prüfstände entworfen werden sollen, kann auf die hier entwickelten Module zurückgegriffen werden.
+\\
+Um das entwickelte Konzept besser zu verstehen, wird erst auf die Struktur und dann auf die Auswahl der Komponenten eingegangen.
+
+\subsection{Struktureller Aufbau}
+Die Aufgabenverteilung im Prüfstand wird in Ebenen eingeteilt. Es wird die Prozessebene, Verarbeitungsebene und die Darstellungsebene unterschieden.
+\\
+Dabei wird die Prozessebene vom ESP32 Mikrocontroller gesteuert. Er kommuniziert mit einem Raspberry Pi, in dem die Verarbeitungsebene und die Darstellungsebene implementiert sind.
+\\
+Bei dem Mikrocontroller ESP32 handelt es sich um einen Mikrocontroller mit zwei Kernen und einer hohen Taktrate. Es gibt viele Mikrocontroller, die für die Aufgabe in dem Prüfstand in Frage gekommen wären. Es wurde sich für den ESP32 entschieden, weil er gute Peripherieanbindungen hat und die Möglichkeit bietet ein Echtzeitbetriebssystem zu benutzen. Besonders das Echtzeitbetriebssystem unterstützt die Entwicklung der Software stark. Außerdem besitzt der ESP32 die Möglichkeit WLAN oder Bluetooth zu nutzen. Das wird von diesem Prüfstand nicht benötigt, aber kann für zukünftige Projekte interessant sein.
+\cite{ESP32_datasheet}
+\\
+\noindent
+Bei dem Raspberry Pi handelt es sich um einen Einplatinencomputer. Er wurde für die Datenverarbeitung und Darstellung gewählt, weil seine Rechenleistung ausreichend hoch ist, um eine grafische Oberfläche zu rendern. Eingehende Daten können auch mit einer ausreichend hoher Geschwindigkeit verarbeitet und gespeichert werden. Hinzu kommt, dass durch die große Verbreitung viel Lernmaterial zur Verfügung steht.
+\cite[][S. 1ff]{Follmann2018}
+\\
+\noindent
+Für diesen Prüfstand wäre es vom Umfang möglich gewesen den ESP32 wegzulassen und die Prozessebene direkt vom Raspberry Pi zu steuern. Es wurde sich aber gegen diese Lösung entschieden und für die 2-Controller Lösung, weil sie besser zu dem modularen Konzept passt und der Raspberry Pi nicht für Low-Level Operationen entwickelt wurde. Ein Mikrocontroller ist für Low-Level Operationen, wie sie von der Prozessebene gebraucht werden, besser geeignet. Wenn der Prüfstand auf weitere Sensoren erweitert werden soll, nimmt die Komplexität so stark zu, dass es nur äußerst kompliziert alleine vom Raspberry Pi zu bewältigen wäre. Die 2-Controller Lösung ermöglicht eine Aufteilung dieser Komplexität, was zu einer besseren Erweiterbarkeit führt. 
+\\
+\\
+In dem Ebenenmodell ist die unterste Ebene die Prozessebene. In der Prozessebene befinden sich die Module, die für das Auslesen der Sensoren und das Ansteuern der Aktoren zuständig sind. Hier werden die Sensorwerte in eine Form gebracht, dass sie von der Verarbeitungsebene weiterverarbeitet werden können. Die Sensorwerte werden an die Verarbeitungsebene gesendet. Für das Ansteuern der Aktoren und das Auslesen der Sensoren sind sechs Module zuständig:
+\begin{itemize}
+\itemsep0em
+	\item Steuerungs-Modul
+	\item Digital-Output-Modul
+	\item Digital-Input-Modul
+	\item Strommess-Modul
+	\item Temperaturmess-Modul
+	\item Widerstandsmess-Modul
+\end{itemize}
+Die mittlere Ebene ist die Verarbeitungsebene. In der Verarbeitungsebene werden die Informationen aus der Prozessebene ausgewertet und gespeichert. Es werden für das Logging die CSV, Excel, Word und PDF Dateien erzeugt und die Ordnerstruktur verwaltet. Die Informationen, die dargestellt werden sollen, werden an die Darstellungsebene gesendet. Es werden auch Informationen von der Darstellungsebene empfangen und in geeigneter Form an die Prozessebene weitergegeben. Damit kann der Benutzer in die Prozessebene eingreifen.
+\\
+Die oberste Ebene ist die Darstellungsebene. Sie stellt die Schnittstelle zum Benutzer her und ist zuständig die Informationen aus der Verarbeitungsebene, in geeigneter Form, darzustellen. Sie verwaltet auch die Benutzereingaben und gibt diese in passender Form an die Verarbeitungsebene weiter.
+\\
+Sowohl die Verarbeitungsebene, als auch die Darstellungsebene sind auf dem Raspberry Pi implementiert. Er liefert die USB-Schnittstelle und die dazugehörigen Treiber um Daten aus der Prozessebene zu erhalten. Er liefert auch die HDMI-Schnittstelle und die dazugehörigen Treiber, damit die Darstellungsebene das generierte Bild an den Bildschirm senden kann.
+\begin{figure}[h]
+\vspace{24pt}
+\centering
+\includegraphics[width=15cm]{ebenen.eps}
+\caption{Darstellung der Strukturebenen}
+\label{abbildung_ebenen}
+\vspace{24pt}
+\end{figure}
+\\
+\noindent
+Nachdem jetzt die zugrunde liegende Struktur dargestellt wurde, sollen nun die einzelnen Ebenen genauer betrachtet werden.
+
+\newpage
+\subsubsection{Prozessebene}
+Die Prozessebene besteht aus den entworfenen Modulen, die für das Auslesen der Sensoren, das Ansteuern der Aktoren und für die Kommunikation mit der Verarbeitungsebene zuständig sind. Das Steuerungs-Modul ist dafür zuständig, die anderen Module zu konfigurieren und die Messwerte auszulesen. Die Kommunikation unter den Modulen erfolgt über den I2C-Bus und wird von dem Mikrocontroller ESP32 gesteuert. Es wurde sich für diesen Bus entschieden, weil es eine weit verbreitete Schnittstelle ist, die in vielen Bauteilen integriert ist. Ein großer Nachteil ist die geringe maximale Buslänge.\\
+Die von den Messmodulen empfangenen Daten werden vom Steuerungs-Modul aufgearbeitet und in einer geeigneten Form über eine serielle Verbindung an die Verarbeitungsebene gesendet.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=15cm]{prozessebene.eps}
+\caption{Darstellung der Prozessebene}
+\label{abbildung_prozessebene}
+\end{figure}
+
+\subsubsection{Verarbeitungsebene}
+In der Verarbeitungsebene laufen alle Daten zusammen. Die Sensorwerte aus der Prozessebene werden über eine USB-Schnittstelle empfangen. Sie liegen in Textform vor und müssen umgewandelt werden, damit sie weiterverarbeitet werden können. Die Verarbeitungsebene unterscheidet die Daten der unterschiedlichen Sensoren und speichert sie in passender Form, in einem dafür zur Verfügung gestellten Speicherplatz, ab. Es erfolgen in dieser Ebene auch Berechnungen mit den Werten, um zum Beispiel Durchschnittswerte oder Abweichungen zu erhalten. Ausgewählte Werte werden zum Darstellen an die Darstellungsebene übermittelt. Die Übermittlung geschieht über eine IPC (englisch: \textit{Inter Process Communication}) Schnittstelle.
+\\
+Informationen, wie das Betätigen eines Buttons, werden von der Verarbeitungsebene ausgewertet und die dazugehörigen Steuersignale an die Prozessebene weitergegeben.
+\\
+Die Verarbeitungsebene ist auch für das Verwalten der Ordnerstruktur auf dem Netzwerklaufwerk zuständig und erstellt aus den gespeicherten Sensorwerten die Dateien des Logging Prozesses.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=15cm]{verarbeitungsebene.eps}
+\caption{Darstellung der Verarbeitungsebene}
+\label{abbildung_verarbeitungsebene}
+\end{figure}
+
+\subsubsection{Darstellungsebene}
+Die Darstellungsebene verwaltet die Darstellung der Informationen. Die darzustellenden Informationen werden von der Verarbeitungsebene an die Darstellungsebene gesendet und in geeigneten Datenstrukturen gespeichert.
+\\
+Ausgehend von den gespeicherten Informationen wird der DOM generiert. Der DOM (englisch: \textit{Document Object Model}) ist ein Modell der darzustellenden Komponenten. Die Darstellungsebene generiert den DOM dynamisch. Wenn sich Informationen ändern, wird darauf reagiert und der DOM verändert. Aus dem DOM wird das darzustellende Bild generiert, welches an den Bildschirm gesendet wird.
+\cite{dom_introduction}
+\\
+Der Benutzer kann auch Daten auf der grafischen Oberfläche eingeben. Diese Eingabe erfolgt über Buttons oder Textfelder. Die eingegebenen Daten, werden von der Darstellungsebene an die Verarbeitungsebene gesendet.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=15cm]{darstellungsebene.eps}
+\caption{Darstellung der Darstellungsebene}
+\label{abbildung_darstellungsebene}
+\end{figure}
+
+\subsection{Verwendete Komponenten}
+Nachdem die einzelnen Ebenen des Prüfstands und das Modulkonzept erläutert wurde, sollen an dieser Stelle die verwendeten Komponenten aufgelistet werden. Die verwendeten Komponenten werden nach Art eingeteilt und es wird bei jedem der Verwendungsgrund beschrieben.
+
+\subsubsection{Sensoren:}
+
+\begin{itemize}
+	\item Temperatursensor TR33 von WIKA:\\
+	\\
+	Mit einem Temperaturmessbereich von -30 bis +150\,°C ist er für den Prüfstand geeignet. Durch den eingebauten Messumformer, liefert der Sensor ein Stromsignal im Bereich von 4 - 20\,mA, welches eine verlässliche Aussage über den Sensorwert vereinfacht. Mit einer Toleranzklasse von A (\(\pm(0.15 + 0.002 \cdot |t|)\)) des Sensorelements und einer Toleranz von \(\pm 0.25\,K\) des Messumformers, ist der Sensor ausreichend genau. Der Sensor besteht aus Edelstahl und kann somit in Mineralöl verwendet werden.
+	\cite{TR33_datasheet}
+	
+	\item Drucksensor A-10 von WIKA:\\
+	\\
+	Mit einem Druckmessbereich von 0 - 2500\,mbar ist er für den Prüfstand geeignet. Er liefert ein Stromsignal im Bereich von 4 - 20\,mA und ist mit einer Toleranz von \(\pm 7.5\)\,mbar ausreichend genau. Der Sensor misst Druck sowohl in Luft wie auch in Öl.
+	\cite{A-10_datasheet}
+	
+	\item Temperatur und Feuchte-in-Öl Sensor MMT162 von Vaisalla:\\
+	\\
+	Dieser Sensor wurde nicht ausgewählt, sondern ist eine Vorgabe vom Betrieb. Der Sensor liefert sowohl für den Feuchte-in-Öl Bereich, wie auch für den Temperaturbereich ein Stromsignal von 4 - 20\,mA. Für die Feuchte-in-Öl hat er im Bereich von 0 - 0.9\,aw eine Genauigkeit von \(\pm 0.02\) und für den Bereich von 0.9 - 1.0\,aw eine Genauigkeit von \(\pm 0.03\). Die Einheit aw steht für die Wasseraktivität und ist ein Maß des im Öl gebundenen Wassers. Es soll für den Feuchte-in-Öl Wert nur der Stromwert ausgegeben werden. Für den Temperaturwert liegt die Genauigkeit (bei 20\,°C) bei \(\pm 0.2\)\,°C.
+	\cite{MMT162_datasheet}
+	
+	\item Füllstandssensor CP38 von Captron:\\
+	\\
+	Der Sensor wurde nicht gewählt, sondern seine Verwendung ist eine Vorgabe vom Betrieb. Bei dem Sensor handelt es sich um einen kapazitiven Füllstandsensor, der speziell für das Buchholzrelais entwickelt wurde. Er benötigt eine Versorgungsspannung von 21 - 30\,V und gibt ein Stromsignal im Bereich von 4 - 20\,mA aus. Er hat einen Messbereich von 0 - 44\,mm. Eine Messgenauigkeit ist im Datenblatt nicht angegeben. Der Sensor wird firmenintern als NM-Sonde bezeichnet. Deshalb wird vereinzelt auch diese Bezeichnung für den Sensor verwendet.
+	\cite{CP38_datasheet}
+	
+	\item Durchflussmesser FCH-C-Ms-N von Biotech:\\
+	\\
+	Der Sensor wurde gewählt, weil er vom Unternehmen schon in Gebrauch war und laut einer firmeninternen Auswertung, für die Gasvolumenmessung mit Transformatoröl, geeignet ist. Der Sensor gibt ein Impulssignal aus, welches von einer Turbine generiert wird. Da der Sensor für Wasser und nicht für Öl ausgelegt ist, soll er in Kapitel 4 untersucht werden.
+	\cite{FCH_datasheet}
+\end{itemize}
+
+\subsubsection{Aktoren:}
+
+\begin{itemize}
+ 	\item 2/2-Wege-Ventil der Firma Buschjost:\\
+ 	\\
+ 	Das Ventil ist elektromagnetisch betätigt und öffnet beim Anlegen einer Gleichspannung von 24\,V. Es handelt sich um ein Membranventil und hat sich in anderen Prüfständen im Unternehmen als geeignet herausgestellt.
+ 	\cite{ventil_datasheet}
+\end{itemize}
+
+\subsubsection{Steuerung und Datenverarbeitung:}
+
+\begin{itemize}
+	\item ESP32 von Espressif:\\
+	\\
+	Der Mikrocontroller besitzt alle benötigten Hardwareschnittstellen. Er wurde aufgrund seiner Taktrate, der Möglichkeit bei der Programmierung ein Echtzeitbetriebssystem zu benutzen und seiner umfangreichen Peripherie, gewählt.
+	\cite{ESP32_datasheet}
+	
+	\item Raspberry Pi von Raspberry Pi Foundation:\\
+	\\
+	Der Raspberry Pi bietet als Einplatinencomputer eine gute Möglichkeit ihn im Schaltschrank zu verbauen. Er hat genug Rechenleistung für das Rendern der grafischen Oberfläche und der Datenverarbeitung.
+	\cite[][S. 1ff]{Follmann2018}
+	
+\end{itemize}
+
+\section{Entwicklung der Elektronik}
+Die Elektronik der einzelnen Module wurde selbst entwickelt und soll hier dargestellt werden. Die Aufgabenbereiche des Prüfstands wurden logisch zu Modulen zusammengefasst. Dabei sollen sich die Module im Prüfstand nicht nur logisch sondern auch physisch voneinander abgrenzen. Für jedes der einzelnen Module wurde sich separat überlegt wie die Aufgabe am besten zu bewältigen ist. Die Aufgaben wurden eingeteilt in:
+\begin{itemize}
+\itemsep0em
+	\item Steuerung der Prozessebene: Steuerungs-Modul
+	\item Ansteuern der Aktoren: Digital-Output-Modul
+	\item Detektieren des Schaltzustands der Magnetschaltröhren:\\
+	Digital-Input-Modul
+	\item Messen von Stromsignalen von 4 - 20\,mA: Strommess-Modul
+	\item Messen des Widerstands eines Pt1000 Temperaturmessfühlers:\\ Temperaturmess-Modul
+	\item Messen von Widerständen im m\(\Omega\) Bereich: Widerstandsmess-Modul
+\end{itemize}
+
+\subsection{Steuerungs-Modul}
+Das Steuerungs-Modul ist die Schnittstelle zwischen der Verarbeitungsebene und den anderen Modulen. Es muss in der Lage sein, Anweisungen von der Verarbeitungsebene zu erhalten und diese auszuführen. Außerdem muss es in der Lage sein Daten an die Verarbeitungsebene zu senden. Dies geschieht über eine serielle Verbindung zwischen dem Raspberry Pi und dem Steuerungs-Modul.
+\\
+Die Hauptfunktion des Steuerungs-Moduls ermöglicht der Mikrocontroller ESP32 auf dem die Programme ausgeführt werden. Er steuert die Kommunikation mit den Modulen und dem Raspberry Pi. Für die I2C Kommunikation befindet sich eine I2C Schnittstelle auf der Platine, die mit dem Mikrocontroller und einer 5\,V Spannungsversorgung verbunden ist. Die digitalen Ein- und Ausgänge und die analogen Eingänge sind auf Schraubklemmen geführt. Dies ist besonders wichtig, weil das Steuerungs-Modul auf Eingangssignale mit Interrupts reagieren soll. Zu diesen Signalen zählt der Temperaturschalter, Druckschalter und die Impulse des Durchflussmessers. Eine LED zeigt an, ob das Modul mit ausreichend Spannung versorgt ist. Drei weitere LEDs werden vom Mikrocontroller, als Informationsausgabe, angesteuert. Die Spannungsversorgung des Mikrocontrollers erfolgt über die USB-Schnittstelle.
+
+\subsection{Digital-Input-Modul}
+Das Digital-Input-Modul wird ausschließlich für das Erfassen des Schaltzustands der Magnetschaltröhren verwendet. An die Magnetschaltröhren wird an einen Kontakt eine Gleichspannung von 5\,V angelegt. Der andere Kontakt wird mit dem Digital-Input-Modul verbunden. Wenn die Schaltröhre schaltet, ändert sich das Potenzial am Eingang des Digital-Input-Moduls.
+\\
+Der I/O-Expander PCF8574 ist für das Einlesen der Eingänge und für die Kommunikation zuständig. Er kann acht Eingangssignale auswerten und die Information über den I2C-Bus einem Master-Gerät zur Verfügung stellen.
+\cite{pcf8574_datasheet}
+\\
+Der PCF8574 wurde gewählt, weil er alle Anforderungen erfüllt und sich trotzdem mit sehr einfachen Befehlen steuern lässt. Er muss vor dem Betrieb nicht konfiguriert werden und es werden keine komplizierten Befehlsketten benötigt, um die Information über die Eingänge zu erhalten. Dies eliminiert mögliche Fehlerquellen.
+Mit einer Versorgungsspannung von 2.5\,V bis 6\,V ist er für den Betrieb sowohl von 3.3\,V als auch für 5\,V geeignet.
+\cite{pcf8574_datasheet}
+\\
+Da das Modul Eingangsspannungen von 3.3 - 24\,V detektieren soll, wurde das ULN2803 Darlington Transistorarray zwischen die Moduleingänge und den I/O-Expander gesetzt. Der ULN2803 ermöglicht eine größere Spannweite der detektierbaren Eingangsspannung. Bei Anlegen einer Spannung von 3 - 30\,V an den Eingang des ULN2830, zieht dieser das Potenzial des dazugehörigen Ausgangs auf das 0\,V Potenzial. Dies ermöglicht eine hohe Spannweite der Eingangsspannung, führt aber auch dazu, dass der PCF8574 ein invertiertes Signal detektiert. Die Information über die Zustände der Eingänge, wird auf Anfrage als 8 Bit Wort übermittelt. Dieses 8 Bit Wort wird dann im Programm invertiert, um den richtigen Zustand an den Moduleingängen zu erhalten.
+\cite{pcf8574_datasheet},
+\cite{uln2803_datasheet}
+\\
+Zur besseren Kontrolle wurde jedem Eingang eine LED  zugeordnet die bei anliegender Spannung leuchtet.
+
+\subsection{Digital-Output-Modul}
+Das Digital-Output-Modul soll eine Spannung von 24\,V zu- und abschalten können. Dies wird für das Magnetventil benötigt.
+\\
+Für die Wiederverwendbarkeit soll das Modul aber so konzipiert werden, dass auch kleinere Spannungen geschaltet werden können. Zusätzlich soll eine LED für jeden Ausgang anzeigen, ob dieser ein- oder ausgeschaltet ist.
+\\
+Als I/O-Expander wurde der PCF8574 verwendet. Seine Ausgänge können über den I2C-Bus von einem Master-Gerät aus gesteuert werden. Er wurde aufgrund seiner einfachen Bedienbarkeit gewählt, hat allerdings den Nachteil, dass er als Stromsenke und nicht als Stromquelle ausgelegt ist. Das bedeutet, dass er für Ströme bis zu 25\,mA in die Ausgänge ausgelegt ist, wenn diese auf einen Low-Pegel geschaltet sind. Der I/O-Expander ist aber nur für Ströme bis 1\,mA ausgelegt, wenn der Ausgang auf einen High-Pegel geschaltet ist.
+\cite{pcf8574_datasheet}
+\\
+Um eine negative Logic zu vermeiden wurde eine Schaltung entwickelt, die mithilfe des logic-level Mosfet 2N7000 eine andere Spannungsquelle schaltet. Aufgrund der Tatsache dass das Digital-Output-Modul Spannungsseitig zu- und abschalten soll und nicht die Masse, wird im Lastkreis ein PNP Leistungsmosfet benötigt. Es wurde sich für den IRF9Z34N entschieden. Er ist zum Schalten von Spannungen bis 55\,V und Strömen bis 19\,A ausgelegt. Der limitierende Faktor ist die maximale Schaltspannung, die \(\pm\) 20\,V nicht über- beziehungsweise unterschreiten darf. Die Spannung zum Schalten wird durch einen Spannungsteiler herabgesetzt.
+\cite{IRF9Z34N_datasheet}
+\\
+Die Schaltung hat zwei Zustände. Der nicht geschaltete Zustand, wenn der Ausgang des I/O-Expanders einen Low-Pegel aufweist und den geschalteten Zustand, wenn der Ausgang des I/O-Expanders einen High-Pegel hat.
+\\
+Im ungeschalteten Zustand liegt am Gate von K1 ein Nullpotenzial an. Dadurch ergibt sich eine Gate-Source Spannung von 0\,V und der Mosfet sperrt. Sollte der Ausgang des PCF8574 nicht beschaltet sein, zieht der Pulldown-Widerstand R3 das Potenzial vom Gate auf 0\,V, um einen undefinierten Zustand zu vermeiden. Das Potenzial am Gate von K2 befindet sich auf +Vcc, was zu einer Gate-Source Spannung von 0\,V führt und auch K2 sperren lässt. Die LED P1 leuchtet nicht und am Lastwiderstand liegt keine Spannung an.
+\\
+Im geschalteten Zustand liegt am Gate von K1 ein Potenzial von 3.3\,V an. Die Gate-Source Spannung liegt damit über der Schwellspannung und der Mosfet schaltet. Durch das Schalten von K1 fließt durch die LED ein Strom und diese leuchtet. Außerdem fällt das Potenzial am Gate von K2 ab. Das führt zu einer negativen Gate-Source Spannung und K2 öffnet. Am Lastwiderstand liegt folglich die Spannung +Vcc an.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=12cm]{schaltplan_do_module_v2.eps}
+\caption{Schaltplan des Digital-Ouput-Modul}
+\vspace{12pt}
+\begin{tabular}{c l}
+	\textbf{Legende:}\\
+	+Vcc & 8 - 38V\\
+	R1 & 1 k\(\Omega\)\\
+	R2 & 1 k\(\Omega\)\\
+	R3 & 47 k\(\Omega\)\\
+	P1 & LED, 3mm, \(V_F = 1.9 V\), \(I_{max} = 25 mA\)\\
+	K1 & NPN logic level Mosfet\\
+	K2 & PNP Leistungsmosfet\\
+	PCF & Ausgang des I/O-Expanders\\
+\end{tabular}
+\end{figure}
+
+\subsection{Strommess-Modul}
+Das Strommess-Modul ist konzipiert um Stromsignale von 4 - 20\,mA zu messen und über eine I2C-Schnittstelle einem Master-Gerät zur Verfügung zu stellen. Zusätzlich zeigt eine LED an, ob die Versorgungsspannung anliegt.
+\\
+Das Strommess-Modul wird für den Temperatursensor TR33, den Drucksensor A-10, für den Feuchte-in-Öl und den Temperaturkanal des Sensors MMT162 und für den Füllstandssensor CP38 verwendet. Außerdem soll ein noch unbekannter Drucksensor mit dem Modul ausgelesen werden.
+\\
+Weil das Modul höchstens vier Stromsignale auslesen kann, werden zwei Strommess-Module benötigt.
+\\
+Der Aufbau des Strommess-Moduls ist verhältnismäßig einfach. Mit dem ADS1115 Analog Digital Wandler wird für jeden der vier Eingänge der Spannungsabfall über einem Widerstand gemessen. Es werden 100\,\(\Omega\) Widerstände verwendet, was bei 4 - 20\,mA zu einem Spannungsabfall von 0.4 - 2\,V führt.
+Der ADS1115 wird für dieses Modul auf einen Eingangsbereich von \(\pm\)2.048\,V konfiguriert. Dadurch ergibt sich bei einer Auflösung von 16-Bit eine Schrittweite von 62.5\,\(\mu\)A.
+\cite{ads1115_datasheet}
+\\
+Die Genauigkeit der Messung hängt von der Güte der Widerstände ab. Es wurden Metallschichtwiderstände mit einer Toleranz von \(\pm\)0,1\,\% verwendet. Um die Genauigkeit weiter zu verbessern, wurde der Widerstandswert jedes einzelnen Widerstands bestimmt. Dazu wurde an jeden Messeingang des Moduls mehrere definierte Stromsignale angelegt und über die mit dem ADS1115 gemessene Spannung der Widerstandswert bestimmt. Im Programm wird dann mit den gemessenen Widerstandswerten der Strom berechnet.
+
+\subsection{Temperaturmess-Modul}
+Für das digitale Messen von Widerstandstemperaturfühlern, haben sich zwei Messschaltungen als sinnvoll herausgestellt. Es kann eine Brückenschaltung verwendet werden oder der Widerstand kann mit Hilfe einer Konstantstromquelle bestimmt werden.
+\\
+Bei der Messung mit Hilfe einer Konstantstromquelle wird ein konstanter Strom in den Stromkreis eingeprägt. Dieser Strom fließt durch den Widerstandstemperaturfühler und erzeugt einen Spannungsabfall, der mit einem ADC gemessen wird.
+\cite[][S. 197ff]{Schruefer2012}
+\\
+Speziell bei der Messung von Temperaturwiderständen wird die Messschaltung so aufgebaut, dass sich der Referenzwiderstand des ADC im gleichen Stromkreis befindet wie der Temperaturwiderstand. Dadurch fließt der eingeprägte Strom sowohl durch den zu messenden Widerstand als auch durch den Referenzwiderstand. Der zu messende Widerstand ist dann unabhängig vom eingeprägten Strom und kann nur aus dem Referenzwiderstandswert und dem Verhältnis der Spannungsabfälle über dem Temperaturwiderstand und dem Referenzwiderstand bestimmt werden. Diese Art der Messung wird ratiometrische Messung genannt.
+\cite{Wu2018}
+\\
+Aufgrund der Tatsache, dass nur ADCs mit interner Referenzspannung zur Verfügung stehen, wurde sich für die Messung mit Ausschlag-Brücke entschieden. Wird das oben beschriebene Verfahren der Messung mit einer Konstantstromquelle und einem ADC mit interner Referenzspannung realisiert, führt das zu einer deutlich schlechteren Auflösung als bei einer Messung mit Brückenschaltung.
+\\
+Die Brückenschaltung besteht aus zwei parallelen Spannungsteilern. Es wird die Spannung zwischen den zwei Spannungsteilern gemessen. Aus der Eingangsspannung, den Widerstandswerten von drei der vier Widerständen und der Brückenspannung kann der Widerstandswert des vierten Widerstands berechnet werden.
+\cite[][S. 252ff]{Lerch2016}
+\newpage
+\begin{figure}[h]
+\vspace{12pt}
+\centering
+\includegraphics[width=8cm]{bridge_circuit_2.eps}
+\caption{Aufbau einer Brückenschaltung}
+\vspace{12pt}
+\end{figure}
+\noindent
+Die Spannung \(U_B\) berechnet sich aus der Differenz der zwei Spannungsteilern.
+\vspace{10pt}
+\begin{equation}
+	U_B = U_E \cdot \left(\frac{R2}{R1 + R2} - \frac{R3}{Rx + R3}\right)
+\end{equation}
+\vspace{10pt}
+\\
+Zur Vereinfachung wird mit \(R_A = \frac{R2}{R1 + R2}\) weiter gerechnet.
+\\
+\vspace{10pt}
+\begin{equation}
+	U_B = U_E \cdot \left( R_A - \frac{R3}{Rx + R3} \right)
+\end{equation}
+\vspace{10pt}
+\\
+Da die Spannung \(U_B\) gemessen wird und die Widerstände R1, R2 und R3 bekannt sind, muss die Formel nach Rx umgestellt werden. 
+\\
+\vspace{10pt}
+\begin{equation}
+	Rx = \frac{U_E \cdot R3}{U_E \cdot R_A - U_B} - R3
+\end{equation}
+\vspace{10pt}
+\\
+Aus dem ermittelten Temperaturwiderstand kann dann die Temperatur mit den Callandar-Van Dusen Gleichungen berechnet werden. Es soll kurz auf die Callandar-Van Dusen Gleichungen eingegangen werden und auf die vereinfachte Gleichung, die dann im Programm verwendet wurde.
+
+\subsubsection{Die Callendar-van Dusen Gleichungen}
+Hugh Longbourne Callendar beschreibt mit seiner Formel die Beziehung von Widerstand und Temperatur in Temperaturfühlern aus Platin. Der Chemiker Milton S. van Dusen fand später heraus, dass die Formel von Callendar nur für einen positiven Temperaturbereich gilt. Für den Temperaturbereich unter 0\,°C wird ein dritter Therm benötigt, den er entwickelte.
+\cite{wikaCvD}
+\\
+Zusammen bilden die beiden Gleichungen die Callendar-van Dusen Gleichungen (CvD). Mit Gleichung \ref{cvd1} für Temperaturwerte über 0\,°C und Gleichung \ref{cvd2} für Temperaturwerte unter 0\,°C kann der Zusammenhang zwischen der Temperatur und dem Widerstandswert dargestellt werden.
+
+\begin{equation}
+	R_\vartheta = R_0 \cdot (1 + (\alpha \cdot \vartheta) + (\beta \cdot \vartheta^2))
+	\label{cvd1}
+\end{equation}
+
+\begin{equation}
+	R_\vartheta = R_0 \cdot (1 + (\alpha \cdot \vartheta) 
+	+ (\beta \cdot \vartheta^2)
+	+ [(\gamma \cdot \vartheta^3) \cdot (\vartheta - 100)])
+	\label{cvd2}
+\end{equation}
+
+\vspace{12pt}
+\begin{tabular}{c l}
+	\textbf{Legende:}\\
+	\(\vartheta\) & Temperatur in °C\\
+	\(R_\vartheta\) & Widerstand bei der Temperatur \(\vartheta\)\\
+	\(R_0\) & Widerstand bei 0\,°C\\
+	\(\alpha\) & \(3.9083 \cdot 10^{-3}\)\\
+	\(\beta\) & \(-5.775 \cdot 10^{-7}\)\\
+	\(\gamma\) & \(-4.183 \cdot 10^{-12}\)\\
+\end{tabular}
+\vspace{24pt}
+\\
+\noindent
+Der Verlauf des Widerstands von einem Pt1000 Widerstandselement in Abhängigkeit von der Temperatur ist in Abbildung \ref{cvd_graph} dargestellt. 
+\\
+\vspace{10pt}
+\begin{figure}[h]
+\centering
+\includegraphics[width=12cm]{callendar_van_dusen.eps}
+\caption{PT1000 Widerstandswerte von -200\,°C bis 900\,°C}
+\label{cvd_graph}
+\end{figure}
+\\
+\noindent
+An dem Verlauf der dargestellten Funktion ist zu sehen, dass es sich nicht um einen linearen Verlauf handelt. Der konkave Verlauf der Funktion ist allerdings so gering, dass häufig nur der lineare Term verwendet wird.
+
+\subsubsection{Anwendung der Callandar-Van Dusen Gleichungen}
+Die Messschaltung ist so aufgebaut, dass der Widerstand des Pt1000 aus der gemessenen Spannung bestimmt wird. Um aus dem Widerstandswert die Temperatur zu berechnen, muss die Gleichung \ref{cvd1} nach der Temperatur umgestellt werden. Es wird nur die Gleichung \ref{cvd1} verwendet, weil nur positive Temperaturen gemessen werden müssen.
+
+\vspace{12pt}
+\begin{equation}
+	\vartheta = -\frac{\alpha}{2 \cdot \beta}
+				-\sqrt{\left(\frac{\alpha}{2 \cdot \beta}\right)^2
+				- \left(\frac{R_0 - R_\vartheta}{R_0 \cdot \beta}\right)}
+\end{equation}
+\vspace{12pt}
+\\
+\noindent
+Da die Berechnung mit einem Mikrocontroller durchgeführt wird und Mikrocontroller nicht standardmäßig Wurzeln ausrechnen können, wurde die Gleichung vereinfacht. Dazu wurde die Gleichung 3.1 um den Arbeitspunkt \(\vartheta = 50\)\,°C linearisiert und dann nach \(\vartheta\) umgestellt.
+
+\vspace{12pt}
+\begin{equation}
+	\setlength{\abovedisplayskip}{16pt}
+	\setlength{\belowdisplayskip}{16pt}
+	\vartheta = \frac{R_\vartheta - R_0 - (2500 \cdot \beta \cdot R_0)}{R_0 \cdot \alpha}
+	\label{my_temperature_equation}
+\end{equation}
+\vspace{12pt}
+\\
+\noindent
+Da sich die zu messende Temperatur nur im Bereich von 40\,°C - 60\,°C bewegt, kann der Fehler, der durch die Approximation entsteht, vernachlässigt werden. Die Linearisierung liefert ein besseres Ergebnis, als die weit verbreitete Praxis den quadratischen Term wegzulassen.
+
+\subsubsection{Aufbau}
+Das Temperaturmess-Modul ist in drei Abschnitte aufgeteilt. Ein Abschnitt ist für die Erzeugung einer konstanten Spannung für die Messbrücke zuständig. Die anderen Abschnitte sind die Messbrücke und der Analog-Digital-Wandler zum Messen der Brückenspannung.
+\\
+Es wurde sich dafür entschieden, die Messbrücke über einen Spannungsregler zu betreiben. Dadurch kann sichergestellt werden, dass die Eingangsspannung der Messbrücke auch bei Unregelmäßigkeiten der Versorgungsspannung gleich bleibt. Hierfür wurde der Spannungsregler LM317 verwendet. Er besitzt eine über Widerstände einstellbare Ausgangsspannung von 1.25\,V bis 37\,V. Der Spannungsregler wurde auf eine Ausgangsspannung von 3.18\,V eingestellt.
+\cite{lm317_datasheet}
+\\
+Die Messbrücke besteht aus drei Metallschichtwiderständen mit einem Widerstand von 1000\,\(\Omega\) und einer Toleranz von 0,1\,\%. Um die Messgenauigkeit zu erhöhen wurde jeder Widerstandswert bestimmt und im Programm für die Berechnung des Temperaturwiderstands verwendet.
+\\
+Bei dem Analog-Digital-Wandler handelt es sich um den ADS1115 der auf einen Messbereich von \(\pm\)\,0.256\,V konfiguriert wurde. Das bedeutet, dass mit dem Messaufbau ein Widerstand zwischen 715\,\(\Omega\) und 1399\,\(\Omega\) gemessen werden kann. Dies entspricht einem Temperaturbereich von etwa -73 - 102\,°C. Da nur positive Temperaturen gemessen werden müssen, wird vom Programm aus nur ein Messbereich der Brückenspannung von 0\,V - 0.256\,V berücksichtigt. Dies führt zu einem Temperaturmessbereich von 0\,°C bis 102\,°C.
+\\
+Bei dem ADS1115 handelt es sich um einen 16\,Bit Analog-Digital-Wandler. Für die Auflösung bedeutet das, dass in 3.125\,mK Schritten gemessen wird.
+
+\newpage
+\subsubsection{Abschätzen der Messgenauigkeit}
+Die Messgenauigkeit der Messung des Pt1000 setzt sich aus der Messgenauigkeit des Sensors und des Temperaturmess-Moduls zusammen.
+\\
+Bei dem Temperaturmessfühler handelt es sich um einen Sensor der Toleranzklasse B. Nach DIN EN 60751 ist die Toleranzklasse B mit \(\pm (0.3 + 0.005 \cdot |t|)\) angegeben. Wobei die Temperaturangabe t die Einheit °C hat.
+\cite{W06_datasheet}
+\\
+Die Messgenauigkeit des Temperaturmess-Moduls ist von vier Variablen abhängig: der Genauigkeit der bestimmten Eingangsspannung, der Toleranz der Widerstände, der Genauigkeit der Messung der Brückenspannung und dem Fehler, der durch die Linearisierung entsteht.
+\\
+Die Eingangsspannung wurde mit dem Multimeter HP-90EPC der Firma HoldPeak gemessen. Laut Datenblatt hat es im Messbereich von 1\,mV bis 4\,V eine Genauigkeit von \(\pm 0.5\)\,\% rdg. Das bedeutet für einen gemessenen Wert von \(U_E = 3.181\,V\) eine Genauigkeit von \(\pm 15.905\,mV\). Das führt zu einer Messungenauigkeit bei 50\,°C, die durch die Toleranz des Messens der Eingangsspannung entsteht, von ca. \(\pm0.27\)\,°C
+\cite{HP-90EPC_datasheet}
+\\
+Bei den Widerständen der Messbrücke handelt es sich um 1000 \(\Omega\) Widerstände mit einer Toleranz von \(\pm 0.1\)\,\%. Bei 50\,°C wäre die Toleranz der Widerstände verantwortlich für eine Messungenauigkeit von \(\pm 0.9\)\,°C. Die Veränderung des Widerstandswertes mit sich ändernder Temperatur der Widerstände, wird an dieser Stelle vernachlässigt. Der Schaltkasten ist keinen großen Temperaturschwankungen ausgelegt und die Eingangsspannung von 3.18\,V treibt keinen Strom, der in den Brückenwiderständen zu einer nennenswerten Temperaturerhöhung führt.
+\\
+Den Fehler, der durch die Messung der Brückenspannung entsteht wird auch vernachlässigt. Die Untersuchung des verwendeten Analog-Digital-Umsetzers in Kapitel 4 hat gezeigt, dass er sehr genau und präzise misst.
+\\
+Der Fehler, der durch die Linearisierung entsteht wird auch nicht betrachtet. Da der Prüfstand in einem Temperaturbereich um 50\,°C bedient werden soll und die Callandar-Van Dusen Gleichung auf eine Temperatur von 50\,°C linearisiert wurde, ist der Fehler, der duch die Linearisierung entsteht, sehr gering.
+\\
+Zusammenfassend kann damit gesagt werden, dass die Messungenauigkeit für die Temperatur, die durch das Temperaturmess-Modul entsteht, schätzungsweise bei \(\pm 1.17\)\,°C liegt.
+\\
+Damit ergibt sich für die Messung der Temperatur mit dem Temperaturmess-Modul schätzungsweise eine Messungenauigkeit von \(\pm (1.47 + 0.005 \cdot |t|)\)
+
+\subsection{Widerstandsmess-Modul}
+Das Widerstandsmess-Modul soll darauf ausgelegt sein, kleine Widerstände im Bereich von 0.01 - 10\,\(\Omega\) zu messen. Besonders bei sehr niedrigen Widerständen und langen Messleitungen wird der Fehler, der durch den Widerstand der Messleitungen und durch die Übergangswiderstände entsteht, signifikant.
+\\
+Aus diesem Grund wurde sich dafür entschieden, den Widerstand über eine Vier-Leiter-Messung mit Konstantstromquelle zu messen.
+\cite[][S. 197]{Schruefer2012}
+\\
+Bei der Vier-Leiter-Messung wird der Widerstand der Messleitung und weitestgehend die Übergangswiderstände eliminiert. Dafür wird ein konstanter Strom in die Schaltung eingeprägt und der Spannungsabfall über dem zu messenden Widerstand gemessen. Es wird eine andere Leitung für den Stromfluss als für die Spannungsmessung verwendet.
+
+\begin{figure}[h]
+\centering
+\vspace*{12pt}
+\includegraphics[width=12cm]{widerstandsmess_modul_vierleitermessung.eps}
+\caption{Vier-Leiter-Messung}
+\vspace*{12pt}
+\end{figure}
+\noindent
+Die Widerstände R\textsubscript{1} - R\textsubscript{4} stellen die zusammengefassten Übergangs- und Leitungswiderstände für die einzelnen Leiterabschnitte dar. Da durch die Konstantstromquelle der gleiche Strom durch R\textsubscript{1}, R\textsubscript{M} und R\textsubscript{2} fließt, ist der Spannungsabfall über R\textsubscript{M} unabhängig von den Widerständen R\textsubscript{1} und R\textsubscript{2}. Der Spannungsabfall wird nur über R\textsubscript{M} gemessen. Die Widerstände R\textsubscript{3} und R\textsubscript{4} können vernachlässigt werden, weil sie in Reihe mit den hochohmigen Eingangswiderständen des Analog-Digital-Wandlers liegen.
+\\
+Zur Parametrierung des Analog-Digital-Wandlers und der Konstantstromquelle wurde für den ADS1115 ein Messbereich von 0 - 0.512\,V gewählt. Um annähernd den ganzen Messbereich zu nutzen, wird die Konstantstromquelle auf etwa 50\,mA ausgelegt. Bei einer Auflösung von \(2^{15}\) kann der Analog-Digital-Wandler Spannungen in 15.62\,\(\mu\)V Schritten messen. Das entspricht bei einem Strom von 50 mA einen Messbereich von 0 - 10.24\,\(\Omega\) mit einer Auflösung von 0.3125\,\(m\Omega\).
+\begin{figure}[h!]
+\centering
+\includegraphics[width=12cm]{widerstandsmess_modul_konstantstromquelle.eps}
+\caption{Konstantstromquelle mit Zener-Diode und Dioden Temperaturkompensation (Quelle: \cite[][S. 73]{Horowitz1989} - teilweise modifiziert)}
+\vspace{12pt}
+	\begin{tabular}{c l}
+	
+ 	\textbf{Gemessene Werte:}\\
+	\(V_CC\) & 4.53\,V\\
+	\(V_D\) & 0.64\,V\\
+	\(V_Z\) & 2.83\,V\\
+	\(V_{BE}\) & 0.73\,V\\
+	\end{tabular}
+
+\end{figure}
+\\
+\noindent
+Für die Konstantstromquelle wurde sich für eine Zener-Dioden Schaltung mit Dioden Temperaturkompensation entschieden. Als Alternative wurde in diesem Zusammenhang eine Schaltung mit dem Spannungsregler LM117 und eine Schaltung mit Operationsverstärker in Betracht gezogen. Allerdings waren diese Schaltungen aufgrund der niedrigen Eingangsspannung nicht konstant genug.
+\\
+Es wird angenommen, dass der Kollektor-Strom \(I_C\) in etwa dem Emitter-Strom \(I_E\) entspricht. Die Schaltung soll so konzipiert werden, dass der Emitter-Strom in etwa 50\,mA entspricht. Der Emitter-Strom kann mithilfe folgender Formeln berechnet werden:
+
+\vspace{10pt}
+\begin{equation}
+	I_E = \frac{V_B - V_{BE}}{R_E}
+\end{equation}
+\begin{equation}
+	V_B = V_D + V_Z
+\end{equation}
+\vspace{10pt}
+\\
+Mit diesen Gleichungen ergibt sich ein \(V_B\) von 3.47\,V und ein \(R_E\) bei 50\,mA von ca. 55\,\(\Omega\). Es wurde ein Emitterwiderstand von 60\,\(\Omega\) verwendet.
+\\
+Der Widerstand \(R_1\) muss so klein ausgelegt sein, dass er den Sättigungsstrom der Zenerdiode \(I_Z = 1\,mA\) und den Basisstrom des Transistors \(I_B\) zulässt. Der Widerstand lässt sich mit folgenden Formeln berechnen:
+
+\vspace{10pt}
+\begin{equation}
+	R_1 = \frac{Vcc - V_D - V_Z}{I_Z + K \cdot I_B}
+\end{equation}
+\\
+Ein \(K = 2\) wurde als Pufferfaktor gewählt, damit der Strom \(I_B\) sichergestellt ist.
+\\
+\begin{equation}
+	I_B = \frac{I_C}{h_{FE,min}}
+\end{equation}
+\vspace{10pt}
+\\
+Der Wert \(h_{FE,min} = 110\) wurde dem Datenblatt des Transistors entnommen. Es ergibt sich ein minimaler Basisstrom von \(I_B = 0.45\,mA\) und ein Widerstand von ca. \(R_1 = 555\,\Omega\). Es wurde ein Widerstand von 470\,\(\Omega\) gewählt.
+\\
+Wenn mit den gemessenen Werten und den verwendeten Widerständen der Emitterstrom berechnet wird, ergibt sich ein Strom von:
+
+\vspace{10pt}
+\begin{equation}
+	I_E = \frac{3.47\,V - 0.73\,V}{60\,\Omega} = 45.66\,mA \approx I_C
+\end{equation}
+\\
+Der berechnete Stromwert entspricht in etwa dem gemessenen Wert. Der gemessene Kollektorstrom beträgt \(I_C = 46.10\,mA\).
+
+\subsubsection{Aufbau}
+Das Widerstandsmessmodul besteht aus einer Konstantstromquelle und einem Analog-Digital Umsetzer. Für die Bauteile der Konstantstromquelle wurden Standardbauteile verwendet. Bei dem Transistor wurde sich für den BC456 entschieden. Die über dem zu messenden Widerstand abfallende Spannung wird mit dem ADS1115 Delta-Sigma ADC gemessen. Ein Master-Gerät kann über den I2C Bus mit dem ADS1115 kommunizieren. Eine LED zeigt zusätzlich an, ob das Modul mit Spannung versorgt ist.
+
+\section{Entwicklung der Software}
+Mit dem Beschreiben der Elektronik wurde ein großer Teil der Konzeption des Prüfstands abgehandelt. Der andere große Teil ist die Entwicklung der Software. Da der Prüfstand logisch in drei Ebenen eingeteilt wurde, soll an dieser Stelle auch die Programmentwicklung in die drei Ebenen eingeteilt werden. Dabei ist das Programm für die Prozessebene in der Programmiersprache C programmiert worden und das Programm für die Verarbeitungsebene und für die Darstellungsebene in der Programmiersprache JavaScript.
+\\
+Bei JavaScript handelt es sich um eine Skriptsprache. Sie wurde ursprünglich nur für Webanwendungen, wie das Erzeugen von dynamische Internetseiten, verwendet. Mittlerweile hat sie sich aber so stark weiterentwickelt, dass sie immer mehr Einzug in andere Bereiche findet. Damit JavaScript auf dem Raspberry Pi ausgeführt werden kann, wird eine Laufzeitumgebung benötigt. Als Laufzeitumgebung wird NodeJS verwendet. NodeJS steuert den Zugriff von JavaScript auf die Hardware des Raspberry Pi.
+\cite{JavaScript}
+
+\subsection{Programmentwicklung für die Prozessebene}
+Für die Programmierung des Mikrocontrollers ESP32 von Espressif wurde ein Echtzeitbetriebssystem verwendet. Da die Leistung von Mikrocontrollern immer mehr zunimmt und auch deren Komplexität, etablieren sich in der Praxis immer mehr Echtzeitbetriebssysteme. So ist die Programmierung des ESP32, mit der vom Hersteller bereitgestellten Programmierschnittstelle, nur noch mit dem Echtzeitbetriebssystem FreeRTOS möglich.
+\\
+Im Folgenden wird kurz auf Echtzeitbetriebssysteme im Allgemeinen und das Echtzeitbetriebssystem FreeRTOS von Real Time Engineers Ltd. im Speziellen eingegangen.
+
+\subsubsection{Echtzeitbetriebssysteme}
+Ein Betriebssystem, auch OS (englisch: \textit{Operating System}) genannt, ist ein Bündel von Programmen, welches mit Hilfe des Betriebssystemkerns und verschiedener Systemprozessen Systemressourcen verwaltet und diese Anwendungsprogrammen zur Verfügung stellt.
+\cite[][S. 17]{Baun2017}
+\\
+Die meisten Betriebssysteme, wie Windows oder Linux, besitzen weiche Echtzeitanforderungen. Das Betriebssystem soll für den Benutzer ansprechbar sein und dabei die Rechenleistung relativ ausgewogen zwischen den Anwendungsprogrammen aufteilen. Unter einer weichen Echtzeitanforderung wird eine Echtzeitanforderung verstanden, bei der die Funktion der Anwendung auch gegeben ist, wenn eine Deadline überschritten wird.
+\cite[][S. 28]{Baun2017},
+\cite[][S. 141f]{SamSiewert2016},
+\cite{FRTOS_RTA}
+\\
+Anders verhält es sich bei harten Echtzeitanforderungen. Wird bei harten Echtzeitanforderungen die Deadline überschritten, dann ist die Funktionalität der Anwendung nicht mehr gegeben. Harte Echtzeitanforderungen setzen also voraus, dass auf ein bestimmtes Ereignis innerhalb einer strikt festgelegten Zeit reagiert wird. 
+\cite[][S. 28]{Baun2017},
+\cite[][S. 31f]{Tanenbaum2002}
+\\
+Diese harten Echtzeitanforderungen werden beim Prüfstand für das Daten-Logging benötigt. Für die Messungen und Übermittlung der Sensorwerte, ist für jeden Sensor eine Frequenz festgelegt, die sich nach der Dynamik des zu messenden Prozesses richtet. Wenn die Messung oder Übermittlung des Sensorwertes sich verzögert, ist die Messreihe unbrauchbar. Außerdem muss bei der Gasvolumenmessung, im Zeitpunkt des Schaltens der Magnetschaltröhre, der Gasvolumenwert gespeichert werden. Eine Verzögerung des Speicherns führt zu fehlerhaften Messwerten. Auch bei der Bewertung des Druckschalters würde es das Messergebnis verfälschen, wenn das Signal, dass der Druckschalter geschaltet hat, verspätet verarbeitet wird. Um das zu vermeiden und harte Echtzeitanforderungen zu gewährleisten, wird das Echtzeitbetriebssystem FreeRTOS verwendet.
+\\
+FreeRTOS ist ein RTOS mit einem großen Umfang an Funktionen. Eine Stärke von FreeRTOS ist es, dass nicht alle dieser Funktionen implementiert werden müssen. Das sorgt dafür, dass FreeRTOS so wenig Platz wie möglich auf dem Speicher des Mikrocontrollers einnimmt. Im Folgenden soll nur die verwendete Funktionalität beschrieben werden. Dazu zählen Tasks, Queues und Semaphores.
+
+\subsubsection{Tasks}
+Tasks sind die Hauptbausteine eines Programms in FreeRTOS. Sie können als Unterprogramme verstanden werden und erfüllen alle eine bestimmte Teilaufgabe. Alle Tasks haben einen Einstiegspunkt und laufen normalerweise in einer Endlosschleife. FreeRTOS steuert die Abarbeitung der einzelnen Tasks nach ihrer Priorität.
+\cite[][S. 46]{FRTOSManual}
+\\
+Ein Task kann sich in einem von vier States befinden. Ein State in FreeRTOS ist der Zustand eines Tasks. In welchem Zustand sich ein Task befindet wird von einem Teilprozess des Kernel gesteuert. Der Teil der dafür zuständig ist, wird Scheduler genannt.
+\\
+Die möglichen Zustände eines Task sind folgende:
+
+\begin{itemize}
+\itemsep0em
+\item Running
+\item Ready
+\item Blocked
+\item Suspended
+\end{itemize}
+
+\noindent
+Der Task, der sich im Running Zustand befindet wird sequenziell ausgeführt. Es kann sich normalerweise nur ein Task im Running Zustand befinden.
+\cite[][S. 65f]{FRTOSManual},
+\cite{esp-idf_FRTOS}
+\\
+Ist ein Task bereit ausgeführt zu werden, kann aber nicht ausgeführt werden, weil ein anderer Task mit einer höheren Priorität bereits ausgeführt wird, erhält er den Ready Zustand. Das bedeutet, dass er auf den Scheduler wartet ausgeführt zu werden. Bei mehreren Tasks im Ready Zustand wird immer der Task als erstes ausgeführt, der eine höhere Priorität aufweist. Bei gleicher Priorität wird der Task als erstes ausgeführt, der länger wartet. Kommt ein Task in den Ready Zustand, während sich ein Task niedrigerer Prioriät im Running Zustand befindet, dann wird der Task im Running Zustand pausiert und der Task im Ready Zustand, mit der höheren Priorität, ausgeführt. Damit wird sichergestellt, dass ein Task mit einer höheren Priorität immer Vorrang hat. Dieses Verfahren wird Round-Robin Scheduling genannt und ist in Abbildung \ref{round-robin} dargestellt.
+\cite[][S. 59]{FRTOSManual}
+
+\begin{figure}[h]
+\vspace{12pt}
+\centering
+\includegraphics[width=12cm]{round_robin_scheduling.eps}
+\caption{Funktionsweise des Round-Robin Scheduling}
+\label{round-robin}
+\vspace{12pt}
+\end{figure}
+
+\noindent
+Ein Task kann vom Scheduler in einen ausgesetzten Zustand versetzt werden. Dieser Zustand wird Blocked genannt. Im Blocked Zustand kann ein Task nicht in den Running Zustand versetzt werden. Er muss vom Scheduler erst in den Ready Zustand versetzt werden damit dies wieder möglich ist. Es gibt unterschiedliche Gründe, wieso ein Task in den Blocked Zustand versetzt werden soll. Es gibt die Möglichkeit einen Task eine bestimmte Zeit warten zu lassen, ihn in festgelegten Zeitintervallen abzuarbeiten oder ihn auf Ereignisse warten zu lassen.
+\cite[][S. 61]{FRTOSManual}
+\begin{figure}[h]
+\centering
+\includegraphics[width=10cm]{task_states.eps}
+\caption{FreeRTOS Task States (Quelle: \cite[][S. 67]{FRTOSManual} - teilweise modifiziert)}
+\end{figure}
+\\
+\noindent
+Ein Task kann aus jedem Zustand mit der API Funktion vTaskSuspend in einen suspendierten Zustand versetzt werden. Im suspendierten Zustand wird der Task so lange vom Scheduler ignoriert, bis er mit der API Funktion vTaskResume wieder in den Ready State versetzt wird.
+\cite[][S. 46]{FRTOSManual}
+
+\subsubsection{Queues}
+Eine queue (deutsch: \textit{Warteschlange}) in FreeRTOS ist ein Zwischenspeicher für Datenpakete. Eine Warteschlange wird für Datenpakete einer bestimmten Größe und Anzahl definiert. Es können mehrere Warteschlangen mit unterschiedlichen Eigenschaften definiert werden.\\
+Ein Task kann Datenpakete in der Warteschlange ablegen und ein anderer Task kann dann die Datenpakete aus der Warteschlange herausnehmen. Dabei werden neue Datenpakete immer ans Ende der Warteschlange angehängt und von Vorne wieder herausgenommen. Es handelt sich um einen FiFo (englisch: \textit{First in First out}) Speicher.\\
+Queues sind deshalb wichtig, weil FreeRTOS die Möglichkeit bietet, dass Tasks darauf warten, dass in einer Queue ein Datenpacket abgelegt wird.\\
+Diese Funktionsweise wird benötigt, weil der Mikrocontroller Befehle über den UART empfangen soll. Solch ein Befehl erfolgt zufällig und selten. Es wäre eine Verschwendung von Rechenleistung den Mikrocontroller ständig den UART-Speicher auf neu eingetroffene Datenpakete überprüfen zu lassen.\\
+Mit den Queues gibt es die Möglichkeit, dass ein Task solange wartet, bis der UART-Controller empfangene Daten auf eine Queue legt. Der dazugehörige Task geht dann von dem Blocked-State in den Ready-State und kann die empfangenen Daten bearbeiten.
+\cite[][S. 103ff]{FRTOSManual}
+
+\subsubsection{Semaphores}
+Unter Semaphores wird eine Datenstruktur verstanden, die den Zugriff auf beschränkte Ressourcen regelt und zur Synchronisation asynchroner Prozesse verwendet wird. Sinnbildlich kann sich unter einem Semaphore ein Token vorgestellt werden, ohne den ein Task nicht ausgeführt werden kann.
+\\
+In der Programmierung des Prüfstands wurde diese Datenstruktur verwendet, um Tasks auf externe Ereignisse reagieren zu lassen. Zu diesen externen Ereignissen zählen das Schalten des Druck- und Temperaturschalters, die Flankenerkennung des Durchflussmessers und das Reagieren auf Anweisungen der Verarbeitungsebene.
+\cite[][S. 191ff]{FRTOSManual}
+
+\subsubsection{Beschreibung der programmierten Tasks}
+Für die Kommunikation mit den Modulen, der Verarbeitungsebene und zur Auswertung des Temperaturschalter, Druckschalter und Durchflussmesser, wurden Tasks programmiert. Diese Tasks werden zyklisch mit unterschiedlichen Frequenzen oder asynchron aufgerufen. Die Abgrenzung der Tasks erfolgt logisch nach Aufgaben. Folgende Tasks wurden erstellt:
+
+\begin{itemize}
+\itemsep0em
+	\item schaltroehren\_task: Es werden die Zustände der Eingänge vom Digital-Input-Modul ermittelt. Diese Zustände werden in einer Datenstruktur zwischengespeichert und an die Verarbeitungsebene gesendet. Der Zustand der Schaltröhren wird  im 200\,ms Takt übermittelt.
+	
+	\item temperatur\_task: Es wird der Spannungsabfall der Brückenschaltung vom Temperatur-Modul ermittelt und damit der Temperaturwert vom Pt1000 berechnet. Vom Strommess-Modul wird der Stromwert des Temperatursensors WIKA TR33 ermittelt und daraus der Referenztemperaturwert berechnet. Die Übermittlung an die Verarbeitungsebene erfolgt im 2\,s Takt. Da es sich um einen trägeren Prozess handelt ist diese Taktfrequenz ausreichend.
+	
+	\item pressure\_task: Es wird über das Strommess-Modul der Stromwert des Drucksensors WIKA A-10 und des zu bewertenden Sensors ermittelt. Es ist noch nicht bekannt welcher Sensor neben dem Referenzdrucksensor verwendet wird. Es soll deshalb ein Stromsignal 0 - 20\,mA übertragen werden. Aus dem Stromwert des Referenzdrucksensors wird der Druck berechnet und beide Werte im 100\,ms Takt an den Raspberry Pi übermittelt.
+	
+	\item vaisalla\_task: Es wird über das Strommess-Modul der Stromwert des Feuchte-in-Öl-Kanals und des Temperatur-Kanals vom Vaisalla MMT162 Sensor ermittelt. Der Feuchte-in-Öl Wert wird als Stromwert übermittelt und der Temperaturwert wird aus dem Stromwert berechnet. Die Datenübermittlung erfolgt im 2\,s Takt. Auch hier ist der Prozess träge genug, dass eine Taktrate von 2\,s gerechtfertigt ist.
+	
+	\item gasvolumen\_task: Dieser Task ermittelt nicht selber das Gasvolumen sondern greift nur auf eine globale Variable zu, in der das Gasvolumen von einem anderen Task gespeichert wird. Es wird zusätzlich über das Strommess-Modul der Stromwert des Füllstandssensors CP38 von Captron ermittelt. Das Gasvolumen und der Sensorwert des CP38 werden im 100\,ms Takt an die Verarbeitungsebene übermittelt.
+	
+	\item send\_data\_task: Dieser Task übermittelt die übrigen Messwerte an die Verarbeitungsebene. Darunter fallen der Zustand des Magnetschaltventils und der gemessene Widerstand vom Widerstandsmess-Modul. Der Zustand des Magnetschaltventils wird vom Digital-Output-Modul ermittelt. Der Widerstandswert wird aus dem Spannungswert vom Widerstandsmess-Modul berechnet. Die Übertragung erfolgt im 500\,ms Takt.
+	
+	\item uart\_event\_task: Dieser Task ist für das Ausführen von Befehlen aus der Verarbeitungsschicht zuständig. Zu den Befehlen gehören das Ein- und Ausschalten des Magnetventils und das Zurücksetzen des aufsummierten Gasvolumen. Die Befehle werden über den UART empfangen. Der UART Treiber schreibt die empfangene Nachricht auf eine Queue. Wenn neue Daten auf die Queue geschrieben werden, geht der Task vom Blocked in den Ready State und vergleicht die empfangene Nachricht mit einer Liste von festgelegten Befehlen. Wenn es eine Übereinstimmung gibt, wird der dazugehörige Befehl ausgeführt.
+	
+	\item pin13\_interrupt\_task: An Pin 13 ist der Temperaturschalter angeschlossen. Wenn der Zustand des Pins sich ändert, wird ein Interrupt ausgelöst und der aktuelle Wert des Referenztemperatursensors gespeichert. Der gespeicherte Wert wird an die Verarbeitungsebene zur weiteren Verarbeitung gesendet.
+	
+	\item pin14\_interrupt\_task: An Pin 14 ist der Druckschalter angeschlossen. Wenn der Zustand des Pins sich ändert, wird ein Interrupt ausgelöst und der aktuelle Wert des Referenztemperatursensors gespeichert. Der gespeicherte Wert wird an die Verarbeitungsebene zur weiteren Verarbeitung gesendet.
+	
+	\item pin15\_interrupt\_task: An Pin 15 ist der Durchflussmesser angeschlossen. Wenn an Pin 15 eine steigende oder fallende Flanke gemessen wird, dann wird der Gasvolumenwert um 1.4543 erhöht. Der Wert 1.4543 wurde aus den Messwerten der Untersuchung des Durchflussmessers ermittelt. Auf den Wert wird in Kapitel 4.3 näher eingegangen. Bei der Variable für den Gasvolumenwert handelt es sich um eine globale Variable auf die der gasvolumen\_task zugreift.
+\end{itemize}
+
+\noindent
+In Abbildung \ref{esp32_event_handling} ist der Verlauf der Befehlserkennung des uart\_event\_task dargestellt.
+\begin{figure}[h]
+\centering
+\includegraphics[width=10cm]{esp32_event_handling.eps}
+\caption{Befehlserkennung des ESP32}
+\label{esp32_event_handling}
+\end{figure}
+
+\subsection{Programmentwicklung für die Verarbeitungsebene}
+Die Programmierung von JavaScript unterscheidet sich von der Programmierung in C. Bei der Programmierung von Mikrocontrollern werden überwiegend synchron ablaufende Prozesse programmiert. Die Task werden regelmäßig ausgeführt. Mit Echtzeitbetriebssystemen kann zusätzlich auf asynchrone Prozesse reagiert werden. Dies macht aber nur einen geringen Teil des Programms aus.
+\\
+Die Verarbeitungsebene wurde in JavaScript überwiegend reaktiv programmiert. Zyklisch ablaufende Prozesse bilden die Ausnahme. Bei der reaktiven Programmierung werden Eventlistener definiert. Eventlistener warten auf ein bestimmtes Ereignis und führen bei Eintreten einen festgelegten Programmcode aus. Im Folgenden werden die programmierten Eventlistener beschrieben.
+\\
+Folgende Eventlistener wurden erstellt:
+\begin{itemize}
+\itemsep0em
+
+ \item parser.on('data'): Es wird auf eingehende Nachrichten auf dem seriellen Port reagiert. Erst wird überprüft, ob die Datenstruktur der eingehenden Daten der verwendeten Datenstruktur entspricht. Wenn das der Fall ist, werden die benötigten Informationen aus der Nachricht extrahiert. Für jede von der Prozessebene übermittelte Nachricht wurde ein Name festgelegt. Anhand von diesem Namen verarbeitet der Eventlistener die Daten weiter. Sie werden in Arrays gespeichert und ausgewählte Informationen werden an die Darstellungsebene weitergegeben.
+ 
+ \item ipc.on('toggleVentil'): Es wird auf das Drücken des Buttons für das Schalten des Magnetventils reagiert. Wenn das Magnetventil geschlossen ist, dann wird der Befehl für das Öffnen des Magnetventils an die Prozessebene gesendet. Wenn das Magnetventil offen ist, dann wird der Befehl für das Schließen gesendet.
+ 
+ \item ipc.on('resetTempSchalt'): Es wird auf das Drücken des Buttons für das Zurücksetzen des Wertes der Schalttemperatur reagiert. Der Eventlistener setzt den in der Verarbeitungsebene gespeicherten Wert für die Schalttemperatur auf Null. Erst nach dem Zurücksetzen kann ein neuer Wert für die Schalttemperatur gespeichert werden.
+ 
+ \item ipc.on('resetPressureSchalt'): Es wird auf das Drücken des Buttons für das Zurücksetzen des Wertes des Schaltdrucks reagiert. Der Eventistener setzt den in der Verarbeitungsebene gespeicherten Wert für den Schaltdruck auf Null. Erst nach dem Zurücksetzten kann ein neuer Wert für den Schaltdruck gespeichert werden.
+ 
+ \item ipc.on('resetFlowmeter'): Es wird auf das Drücken des Buttons für das Zurücksetzen des Wertes für das Gasvolumen reagiert. Der Eventlistener setzt den Wert für das Gasvolumen in der Verarbeitungsebene auf Null und sendet einen Befehl an die Prozessebene, damit er auch dort auf Null gesetzt wird.
+ 
+ \item ipc.on('startGasMeasurement'): Es wird auf das Drücken eines Buttons reagiert, der die Gasmessung startet. Das Array in dem das Gasvolumen und der Wert des Füllstandsensors gespeichert ist, wird geleert. Es werden alle Einstellungen getätigt, mit welchen Parametern die Messung durchgeführt werden soll. Die Messung wird anschließend gestartet
+ 
+ \item ipc.on('continueGasMeasurement'): Wenn bei der Gasvolumenmessung eingestellt wurde, dass sie beim Schalten der Alarme stoppen soll, wird über diesen Eventlistener die Messung fortgesetzt.
+ 
+ \item ipc.on('abortGasMeasurement'): Dieser Eventlistener bricht die Messung ab und sendet den Befehl für das Schließen des Magnetventils an die Prozessebene.
+ 
+ \item ipc.on('loggingTemp'): Dieser Eventlistener startet den Logging Prozess für die Temperaturmessung und wird durch das Drücken eines Buttons ausgelöst.
+ 
+ \item ipc.on('loggingPressure'): Dieser Eventlistener startet den Logging Prozess für die Druckmessung und wird durch das Drücken eines Buttons ausgelöst.
+ 
+ \item ipc.on('loggingGas'): Dieser Eventlistener startet den Logging Prozess für die Gasvolumenmessung und wird durch das Drücken eines Buttons ausgelöst.
+ 
+\end{itemize}
+
+\noindent
+In Abbildung \ref{rpi_event_handling} ist der Verlauf der Befehlserkennung der Verarbeitungsebene dargestellt.
+\begin{figure}[h]
+\centering
+\includegraphics[width=10cm]{rpi_event_handling.eps}
+\caption{Befehlserkennung der Verarbeitungsebene}
+\label{rpi_event_handling}
+\end{figure}
+
+\subsubsection{Datenlogging}
+Der Prüfstand soll nicht nur die Daten der Sensoren messen und darstellen, sondern diese auch speichern. Dies ist wichtig, wenn Daten weiterverarbeitet werden sollen. Sie sollen deshalb in den gängigsten Dateiformaten gespeichert werden. Es wurde sich für folgende Dateiformate entschieden:
+\begin{itemize}
+\itemsep0em
+	\item CSV
+	\item XLSX
+	\item PDF
+	\item DOCX
+\end{itemize}
+
+\noindent
+Das Dateiformat CSV ist ein weit verbreitetes Dateiformat, welches von vielen Programmen unterstützt wird. Es ist sehr einfach aufgebaut und speichert Werte, die mit Kommas getrennt sind. Sollen Messwerte beispielsweise mit Matlab weiter verarbeitet werden, lassen sich die Messwerte gut aus einer CSV-Datei importieren.\\
+Das Dateiformat XLSX wurde aufgrund der weiten Verbreitung von Excel gewählt. Es ist auch möglich CSV Datein in Excel zu importieren. Es soll trotzdem eine XLSX Datei erstellt werden, um es dem Endnutzer einfacher zu machen die Daten weiter zu verarbeiten.
+\\
+Zu jedem Messdurchlauf soll automatisch ein Protokoll erstellt werden. Dieses Protokoll enthält die wichtigsten Messergebnisse in übersichtlicher Form. Das PDF Dateiformat wurde gewählt, weil es sich auf sehr vielen Computern darstellen lässt und es nicht verändert werden kann.
+\\
+Für den Fall, dass doch etwas an dem Protokoll ergänzt oder geändert werden soll, wird noch eine DOCX Datei erstellt. Diese Word Datei enthält die gleichen Informationen wie die PDF Datei.
+\\
+Die unterschiedlichen Messungen haben unterschiedliche Anforderungen an das Speichern der Messwerte. Einige Messwerte sollen nur dargestellt werden und erfordern keine Speicherung. Andere Messwerte müssen zu einem Zeitpunkt oder über einen Zeitraum gemessen und gespeichert werden. Die Tabelle \ref{table_logging} zeigt für die durchzuführenden Messungen die Aufgaben des Datenloggings.
+
+\input{./tables/table_logging}
+\noindent
+
+\subsection{Entwicklung der Darstellungsebene}
+Der Prüfstand wird über eine grafische Oberfläche bedient. Sie stellt die Darstellungsebene dar.
+\\
+Für die Umsetzung dieser grafischen Oberfläche wurden verschiedene Möglichkeiten betrachtet. Es wurde sich entschieden eine grafische Oberfläche basierend auf Webtechnologie umzusetzen. Webtechnologien bieten den großen Vorteil, dass sie plattformunabhängig sind und auf ein großes Angebot an grafischen Gestaltungswerkzeugen zurückgreifen können. Außerdem erscheint die Lösung zukunftsorientiert, weil ein Trend in der Industrie zu erkennen ist, dass immer stärker Online-Lösungen präferiert werden.
+\\
+Für den Prüfstand sollen diese Webtechnologien allerdings nur für die grafische Oberfläche benutzt werden. Das Programm soll nicht online laufen, sondern lokal auf dem Raspberry Pi. Der Prüfstand soll auch ohne Internetverbindung funktionieren. Eine Lösung hierfür ist das Framework Electron \cite{electron}. Es ermöglicht das Erstellen von Desktop-Anwendungen auf Basis von Webtechnolien, wie JavaScript, HTML und CSS.
+\cite{electron}
+\\
+Als Framework für die Darstellungsebene wird React benutzt. React ist eine objektorientierte Javascript Bibliothek zum Erstellen von grafischen Oberflächen. Es ist zuständig für das Rendern und allen damit verbundenen Aufgaben.
+\cite{react}
+
+\newpage
+\subsubsection{Übersicht}
+Auf der Übersicht Maske werden alle wichtigen Informationen zum Prüfstand auf einen Blick angezeigt. Der Benutzer erhält einen Überblick über den Zustand des Prüfstands und kann das Magnetventil ein- und ausschalten. Die Informationen zum CP38 Füllstandssensor (NM-Sonde) und für den Sensor von Vaisalla werden nur angezeigt, wenn diese Sensoren auch angeschlossen sind. Damit werden die angezeigten Informationen auf das wesentliche reduziert. Die Werte des Vaisalla Sensors, des Widerstandsmess-Moduls und die Schaltzustände der Magnetschaltröhren sind nur auf der Übersicht Maske zu sehen.
+\vspace*{\fill}
+\begin{figure}[h]
+\centering
+\includegraphics[width=15cm]{hmi/Uebersicht.png}
+\caption{Darstellung der Maske Übersicht}
+\label{abbildung_uebersicht}
+\end{figure}
+\vspace*{4cm}
+
+\newpage
+\subsubsection{Temperaturmessung}
+Die Maske Temperaturmessung soll hauptsächlich der Bewertung des Pt1000 Temperaturmessfühlers dienen. Zusätzlich kann noch ein Temperaturschalter getestet werden. Diese Funktionalität wird aber noch nicht benötigt, da es noch kein Buchholz- oder Gasrelais mit verbautem Temperaturschalter gibt. Trotzdem soll die Möglichkeit bestehen einen solchen Sensor zu testen, weil er als mögliche Erweiterung angedacht ist. Das Feld für den Temperaturschalter kann ein- und ausgeschaltet werden. Wenn es eingeschaltet ist, wird in dem Diagramm ein Bereich angezeigt, in dem der Temperaturschalter schalten muss. Dieser Bereich wird über die Eingabe des Soll-Wertes und der Toleranz definiert. Der Schaltwert wird durch eine rote gestrichelte Linie angezeigt.
+\\
+Mit dem Button Loggen werden die Messwerte gespeichert und es wird anschließend automatisch ein Protokoll erstellt.
+\vspace*{\fill}
+\begin{figure}[h]
+\centering
+\includegraphics[width=15cm]{hmi/TempMessung.png}
+\caption{Darstellung der Maske Temperaturmessung}
+\label{abbildung_temperaturmessung}
+\end{figure}
+\vspace*{4cm}
+
+\newpage
+\subsubsection{Druckmessung}
+Die Maske Druckmessung ist ähnlich aufgebaut wie die Maske Temperaturmessung. In der Mitte befindet sich das Diagramm, auf dem der Referenzdruckwert angezeigt wird. Am rechten Rand befindet sich die Anzeige der Messwerte. Wenn ein Drucksensor angeschlossen ist, dann wird die Informationsfläche für den Drucksensor angezeigt. Wenn der Druckschalter über die Checkbox Druckschalter ausgewählt wurde, dann wird die Informationsfläche zum Druckschalter angezeigt.
+\\
+Auf der Informationsfläche zum Druckschalter kann ein Sollwert und eine Toleranz eingegeben werden. Standardmäßig ist für den Sollwert 300\,mbar und für die Toleranz 15\,\% eingestellt. Wenn die Checkbox für den Druckschalter ausgewählt ist, erscheint im Diagramm eine farbige Fläche, die den Bereich anzeigt, in dem der Druckschalter schalten muss. Wenn der Druckschalter schaltet, wird der Schaltdruck gespeichert und als gestrichelte rote Linie angezeigt. Zusätzlich wird noch die relative Abweichung zum Sollwert angezeigt.
+\\
+Mit dem Button Loggen werden die Messwerte gespeichert und automatisch ein Protokoll erstellt.
+\vspace*{\fill}
+\begin{figure}[h]
+\centering
+\includegraphics[width=15cm]{hmi/DruckMessung.png}
+\caption{Darstellung der Maske Druckmessung}
+\label{abbildung_druckmessung}
+\end{figure}
+\vspace*{4cm}
+
+\newpage
+\subsubsection{Gasvolumenmessung}
+Die Maske Gasvolumenmessung ist hauptsächlich für die Gasvolumenmessung ausgelegt. Es kann aber auch, ohne den Messablauf zu starten, das Gasvolumen bei der Vorwarnung, Warnung und Abschaltung abgelesen werden. Wenn der CP38 Füllstandssensor angeschlossen ist, wird der Stromwert zusätzlich zum Gasvolumen angezeigt. Bei den Alarmen: Vorwarnung, Warnung und Abschaltung wird zusätzlich der dazugehörige Stromwert gespeichert und angezeigt.
+\\
+Für die Gasvolumenmessung kann auf der hervorgehobenen Fläche ''Auswahl und Bedienung'' eingestellt werden, ob das zu messende Relais eine Vorwarnung besitzt. Außerdem ist die Einstellung möglich, die Messung nach jedem Alarm zu stoppen. Wenn diese Option gewählt ist, hält die Messung bei jedem Alarm an und muss manuell fortgesetzt werden.
+\\
+Wenn der Alarm für die Abschaltung auslöst, ist die Messung abgeschlossen und die Messwerte können über den Logging Button gespeichert werden. Es wird ein Protokoll zu der Messung erstellt und die aufgenommenen Messwerte für das Gasvolumen und gegebenenfalls für den CP38 Füllstandssensor werden in einer Excel und CSV Datei gespeichert.
+\vspace*{\fill}
+\begin{figure}[h]
+\centering
+\includegraphics[width=15cm]{hmi/GasMessung.png}
+\caption{Darstellung der Maske Gasvolumenmessung}
+\label{abbildung_gasmessung}
+\end{figure}
+\vspace*{4cm}
+
+\newpage
+\section{Kommunikation zwischen und innerhalb der Ebenen}
+Es wurde bis jetzt darauf eingegangen, wie die Ebenen separat funktionieren. Die Kommunikation zwischen den Ebenen und zwischen den Modulen der Prozessebene wurde am Rande erwähnt.
+\\
+Damit der Prüfstand funktioniert, muss die Informationsübertragung innerhalb der Ebenen wie auch zwischen den Ebenen gewährleistet sein. Im Folgenden soll auf die Kommunikation zwischen den Modulen in der Prozessebene eingegangen und die Kommunikation zwischen den Ebenen erklärt werden.
+
+\subsection{Kommunikation innerhalb der Prozessebene}
+Die Kommunikation mit den Modulen erfolgt über einen I2C-Bus mit dem I2C-Protokoll. Dabei fungiert der ESP32 als Master und die anderen Module sind als Slaves konfiguriert.
+\\
+Bei dem I2C-Bus handelt es sich um einen synchronen seriellen Zweidraht-Bus. Eine Leitung (SCL) gibt einen Takt vor und die andere Leitung (SDA) überträgt die Daten. Um eine 1 zu übermitteln muss die SDA Leitung ein High-Potenzial für die Dauer des High-Potenzials der SCL Leitung aufweisen. Für eine 0 muss die SDA Leitung stattdessen ein Low-Potenzial aufweisen.
+\cite{i2c_manual}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=12cm]{i2c2.png}
+\caption{Das I2C-Protokoll mit Verlauf der Pegel (Quelle: \cite{electric_imp} - teilweise modifiziert)}
+\label{i2c}
+\end{figure}
+\noindent
+Das I2C-Protokoll definiert für eine Nachricht eine festgelegte Stuktur. Mit einer festen Position für die Adresse, der Art des Datenverkehrs, dem Informationsanteil und einer Bestätigungen. Das I2C-Protokoll ist in Abbildung \ref{i2c} dargestellt.
+
+\subsection{Kommunikation zwischen der Prozess- und der Verarbeitungsebene}
+
+\begin{figure}[h]
+\hspace*{-2cm}
+\centering
+\includegraphics[width=18cm]{flussdiagramm_steuerung.eps}
+\caption{Kommunikation der Funktionen mit den Modulen und der Verarbeitungsebene}
+\label{kommunikation_module}
+\end{figure}
+
+Die Kommunikation zwischen der Prozessebene und der Verarbeitungsebene erfolgt über eine serielle Datenübertragung. Die Nachricht wird Zeichenweise vom ESP32 über UART an den CP2102 UART-USB-Wandler gesendet. Zudem wird vom CP2102 die Nachricht über USB an den Raspberry Pi, und somit an die Verarbeitungsebene, übermittelt.
+\\
+Beim UART handelt es sich um eine asynchrone Übertragung. Die Übertragungsrate in den verbundenen Geräten muss voreingestellt sein. Dabei wird die Übertragungsrate in Baud angegeben. Ein Baud entspricht Einem übertragenen Zeichen pro Sekunde. Der ESP32 und der Raspberry Pi kommunizieren mit einer Übertragungsrate von 115200 Baud. Die UART Kommunikation benötigt zwei Datenleitungen. Auf der Tx Datenleitung werden die Daten gesendet. Auf der Rx Datenleitung werden die Daten empfangen. Die Tx Datenleitung vom Sender ist demnach die Rx Datenleitung vom Empfänger.
+\begin{figure}[h]
+\centering
+\includegraphics[width=12cm]{kommunikation_esp_raspberry.eps}
+\caption{Kommunikation zwischen dem ESP32 und dem Raspberry Pi}
+\label{flussdiagramm_steuerung}
+\end{figure}
+\\
+\noindent
+Bei der Kommunikation mit der Verarbeitungsebene werden zwei Arten von Daten unterschieden. Es werden Prozessdaten und Ereignisdaten unterschieden. Die Prozessdaten sind alle Sensorwerte. Hierzu zählen die Zustände der Schaltröhren und der Zustand des Magnetventils. Sie werden in regelmäßigen Abständen übertragen. Die Ereignisdaten sind Daten über Ereignisse, wie das Betätigen bestimmter Buttons auf der Bedienoberfläche, oder die Meldung von Interrupt-Signalen. Sie werden nicht regelmäßig übertragen sondern nur, wenn das Ereignis auftritt.
+\\
+Die Ereignisdaten werden mit eckigen Klammern übertragen und beinhalten die Meldung. Das unterscheidet sie von den Prozessdaten. Die Prozessdaten werden mit geschweiften Klammern übertragen und enthalten einen Namen und Wert. Der Name beschreibt von welchem Sensor der Wert kommt. Diesem Wert wird der Messwert zugeordnet. Bei den Prozessdaten wurde sich für das JSON Dateiformat entschieden. Im Gegensatz zum weit verbreiteten XML Datenformat, welches überwiegend in der Industrie zur Datenübermittlung verwendet wird, ist es ein sehr neues Dateiformat (standardisiert in 2013 \cite{JSON2013}). Der große Vorteil von JSON ist, dass es weniger Zeichen benötigt und somit mehr Informationen in der gleichen Zeit übertragen kann. Außerdem kann es von der Programmiersprache JavaScript direkt verwendet werden. Bei XML müssen die Daten erst über externe Funktionen in eine andere Form umgewandelt werden, um sie dann in Javascript zu verwenden.
+\\
+Beim JSON Format werden die Daten mit geschweiften Klammern zusammengefasst. Es wird erst der Name der Variablen und dann der Variablenwert übertragen. Der Name der Variable ist immer ein String. Bei dem Wert der Variablen kann es sich um ein Objekt, Array, String, Zahl, Boolean oder den programiertechnischen Null-Wert handeln.
+\cite{json}
+\\
+Ein Beispiel für ein JSON Objekt sieht wie folgt aus:
+
+\begin{Verbatim}[frame=single, fontsize=\small]
+{
+	"VariablenName": VariablenWert,
+}
+\end{Verbatim}
+\vspace{8pt}
+\noindent
+Die Tabelle \ref{table_prozessdaten}, auf der folgenden Seite, zeigt alle Prozessdaten die zwischen dem ESP32 und der Verarbeitungsebene ausgetauscht werden.
+\newpage
+
+\input{./tables/table_messages}
+\newpage
+
+\noindent
+Um eine Konsistenz der Datenübermittlung zu gewährleisten, muss sichergestellt sein, dass die Übertragungsrate zu jedem Zeitpunkt für die Datenmenge ausreichend ist. Dazu wurde die Größe der zu übermittelnden Daten bestimmt. Dafür wurde für jeden Task die Anzahl der zu übermittelnden Zeichen pro Sekunde ermittelt. Aufsummiert ergab das für die Datenübermittlung folgendes Ergebnis:
+\begin{itemize}
+\itemsep0em
+	\item Übertragungsvolumen: 3045 Zeichen pro Sekunde
+	\item Auslastung: 2,64\%
+\end{itemize}
+
+\noindent
+Damit ist die Übertragungsrate von 115200 Baud ausreichend und eine konsistente Datenübermittlung ist gegeben. Die Auslastung ist gering genug, um die Ereignisdaten sicher zu übermitteln.
+
+\subsection{Kommunikation zwischen der Verarbeitungs- und der Darstellungsebene}
+Für die Verwendung von Webtechnologien in der Darstellungsebene wird das Framework Electron verwendet. Electron erstellt eine Laufzeitumgebung, in der Javascript auf dem Raspberry Pi laufen kann. Es wird ein verarbeitendes JavaScript Programm erstellt, welches in NodeJS läuft. Die Darstellung erfolgt über das Chromium Browserfenster.\\
+\begin{wrapfigure}{r}[2pt]{0.65\textwidth}
+	\centering
+	\includegraphics[height=8cm]{electron_hierarchie.eps}
+	\caption{Electron hierarchische Struktur}
+	\label{electron}
+\end{wrapfigure}
+Das Chromium Browserfenster stellt dabei die Darstellungsebene und NodeJS die Verarbeitungsebene dar. Den Datenaustausch zwischen Chromium und NodeJS steuert Electron mit eigenen Programmierschnittstellen. Ein Beispiel hierfür sind die ipcMain und ipcRender Funktionen. Die ipcMain API-Funktion wird zum Übertragen von Daten von der Verarbeitungsebene zu der Darstellungsebene benötigt. Die ipcRender API-Funktion ist das Gegenstück dazu und ist für die Übertragung von Daten von der Darstellungsebene zu der Verarbeitungsebene zuständig. Den Informationsaustausch mit dem Betriebssystem und damit der Hardware übernimmt NodeJS. In Abbildung \ref{electron} ist die Hierarchie und der Informationsaustausch dargestellt.
