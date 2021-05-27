@@ -69,15 +69,18 @@
 
 \chapter*{Eidesstattliche Erklärung}
 \thispagestyle{empty}
-Hiermit erkläre ich, dass ich die vorliegende Arbeit eigenständig und ohne fremde Hilfe angefertigt habe. Textpassagen,
-die wörtlich oder dem Sinn nach auf Publikationen oder Vorträgen anderer Autoren beruhen, sind als solche kenntlich gemacht.
+Hiermit erkläre ich, dass ich die vorliegende Arbeit eigenständig
+und ohne fremde Hilfe angefertigt habe.
+Textpassagen, die wörtlich oder dem Sinn nach auf Publikationen
+oder Vorträgen anderer Autoren beruhen, sind als solche kenntlich gemacht.
 \\
 \noindent
-Die Arbeit wurde bisher keiner anderen Prüfungsbehörde vorgelegt und auch noch nicht veröffentlicht.
+Die Arbeit wurde bisher keiner anderen Prüfungsbehörde vorgelegt
+und auch noch nicht veröffentlicht.
 
 \vspace{4cm}
 
-\hspace{2cm} Ort, Datum \hfill Unterschrift \hspace{2cm}
+\hspace{1cm} Ort, Datum \hfill Unterschrift \hspace{2cm}
 
 \chapter*{Abstract}
 \thispagestyle{empty}
@@ -87,7 +90,7 @@ Diese Arbeit beschäftigt sich mit der Entwicklung eines Prüfgeräts für Druck
 \\
 \\
 \\
-This Thesis is about the development of an measurement device for pressure switches.
+This Thesis is about the development of a measurement device for pressure switches.
 
 \setcounter{tocdepth}{2}
 \tableofcontents
@@ -112,13 +115,16 @@ This Thesis is about the development of an measurement device for pressure switc
 \chapter{Motivation und Aufgabenstellung}
 \pagenumbering{arabic}
 \setcounter{page}{1}
-\input{chapters/01_Motivation_und_Aufgabenstellung}
+\include{chapters/01_Motivation_und_Aufgabenstellung}
 
-\chapter{Funktionsweise des Buchholz- und Gasrelais}
+\chapter{Funktionsweise CF38, Druckschalter, HTS-Levelschalter}
+\include{chapters/02_Funktionsweise.tex}
 
-\chapter{Entwicklung des Prüfgeräts für Druckschalter}
+\chapter{Entwicklung des Prüfgeräts}
+\include{chapters/04_Entwicklung.tex}
 
 \chapter{Erprobung und Ergebnisse}
+\include{chapters/04_Erprobung_und_Ergebnisse.tex}
 
 \chapter{Zusammenfassung und Ausblick}
 
@@ -129,6 +135,6 @@ This Thesis is about the development of an measurement device for pressure switc
 \chapter{Datenblätter}
 \newpage
 
-\chapter{Entwickelte Module}
+\chapter{Schalt- und Stromlaufpläne}
 
 \end{document}
