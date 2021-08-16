@@ -30,6 +30,7 @@ Sie sollen einen Einblick und ein Verständnis von der Funktionsweise der Method
 Anwendung bekommen. Für Personen mit Vorwissen soll ein alternativer Lösungsweg beschrieben werden,
 damit sie ihren Wissenshorizont erweitern können und einen anderen Blickwinkel auf die Thematik erlangen.
 
+\clearpage
 \section{Prüfstände}
 Prüfstände dienen der reproduzierbaren Prüfung von technischen Gegenständen auf seine Eigenschaften.
 Bestandteile eines Prüfstands ist die Aufnahme des Prüflings, die Sensorik zum Erfassen der zu prüfenden Eigenschafen,
@@ -37,10 +38,12 @@ die Aktorik zum Erzeugen der Prüfbedingungen, die Steuerung des Prüfstands
 und die Datenverarbeitung der generierten Messwerte. Es wird zwischen Entwicklungs- und EoL
 (\textit{englisch: End of Line}) Prüfständen unterschieden.
 \\
+\\
 \textbf{Entwicklungsprüfstände} dienen der Entwicklung neuer Produkte oder der Prüfung von Protoypen.
 Sie verlangen meist eine höhere Spannweite in den einzustellenden Prüfbedingungen und eine genauere
 Anzeige der Messwerte. Die Prüflinge müssen zum Teil unter Extrembedingungen oder über sehr lange Zeiträume
 getestet werden.
+\\
 \\
 \textbf{EoL-Prüfstände} dienen der Qualitätskontrolle der Produktion. Sie prüfen am Ende des Produktionspozesses,
 ob das gefertigte Produkt alle relevanten Eigenschaften und Funktionen in einem ausreichenden Maß besitzt.
@@ -105,7 +108,19 @@ Aus den Messwerten soll auch ein Protokoll erstellt werden, welches auch vom Mes
 ausgedruckt werden kann. Von unterschiedlichen Computern soll über das firmeninterne Netzwerk
 auf die gespeicherten Daten zugegriffen werden können.
 
-\subsubsection{}
+\subsubsection{Programmiertechnischer Entwurf und Umsetzung}
+Den Ablauf der Messung und die Bedienung wird durch ein Steuerprogramm realisiert.
+Dieses Steuerprogramm muss für die gewünschte Funktionalität entworfen und dann
+programmtechnisch umgesetzt werden. Je nach Architektur der Platine kann es sich auch
+um mehrere Steuerprogramme handeln.
+\\
+Außerdem muss für die Datenverarbeitung und -speicherung ein geeignetes System programmiert werden.
+
+\subsubsection{Messsystemanalyse}
+Durch eine Messsystemanalyse soll die Messmittelfähigkeit des Prüfgeräts untersucht und bewertet werden.
+\\
+Es soll untersucht werden, ob die Bedingungen geschaffen werden können, das Prüfgerät von einem Prüflabor
+testen zu lassen.
 
 
 
@@ -114,11 +129,14 @@ auf die gespeicherten Daten zugegriffen werden können.
 \textbf{Die Teilaufgaben umfassen:}
 
 \begin{itemize}
-	\item Einarbeitung in die ...
+	\item Einarbeitung in die Druckprüfung
+	\item Einarbeitung in das Gasrelais CF38
 	\item Entwicklung der Elektronik für das Prüfgerät
 	\begin{itemize}
-		\item Unterpunkt 1
-		\item Unterpunkt 2
+		\item Schaltungsaufbau und Programmierung einer Spannungsmessung
+		\item Vergleich SAR und Delta-sigma Analog-Digital-Wandler
+		\item Unterschiedliche Strommessschaltungen aufbauen und vergleichen.
+		\item 
 		\item Messen von Stromwerten im \(\mu\)A Bereich
 	\end{itemize}
 	\item Entwicklung und Programmierung der Software für das Prüfgerät
