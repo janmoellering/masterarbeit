@@ -1,0 +1,146 @@
+\boolfalse {citerequest}\boolfalse {citetracker}\boolfalse {pagetracker}\boolfalse {backtracker}\relax 
+\babel@toc {german}{}
+\defcounter {refsection}{0}\relax 
+\thispagestyle {empty}
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{Tabellenverzeichnis}{I}{chapter*.3}%
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{Abbildungsverzeichnis}{II}{chapter*.4}%
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{Abkürzungsverzeichnis}{II}{chapter*.5}%
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{\numberline {1}Motivation und Aufgabenstellung}{1}{chapter.1}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {1.1}Motivation}{1}{section.1.1}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {1.2}Prüfstände}{1}{section.1.2}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {1.3}Detaillierte Anforderungen an das Prüfgerät}{2}{section.1.3}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {1.3.1}Schutzgerät CF38 mit Druckschalter}{2}{subsection.1.3.1}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {1.3.2}Anforderungen}{2}{subsection.1.3.2}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Durchzuführende Prüfungen}{3}{section*.7}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Hardwareentwicklung}{3}{section*.8}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Entwicklung einer grafischen Anzeige}{3}{section*.9}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Mobilität durch integrierte Spannungsversorgung}{3}{section*.10}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{Datenverarbeitung und -speicherung}{3}{section*.11}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsubsection}{}{3}{section*.12}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {1.4}Aufgabenstellung}{3}{section.1.4}%
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{\numberline {2}Messtechnik}{5}{chapter.2}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {2.1}Grundlagen Sensoren}{5}{section.2.1}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {2.2}Analog Digital Wandler}{5}{section.2.2}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {2.3}SAR ADC}{5}{section.2.3}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {2.4}Delta-Sigma ADC}{5}{section.2.4}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {2.5}Schaltungsdesign Strommessung}{5}{section.2.5}%
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{\numberline {3}Mikrocontroller-Programmierung}{6}{chapter.3}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {3.1}Grundlagen der Mikrocontroller-Programmierung}{6}{section.3.1}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {3.2}Echtzeitbetriebssysteme}{6}{section.3.2}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {3.3}Schrittketten-Programmierung}{6}{section.3.3}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {3.4}Steuerung-Programmierung}{6}{section.3.4}%
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{\numberline {4}Kommunikation}{7}{chapter.4}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {4.1}USB}{7}{section.4.1}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {4.2}Bus Systeme}{7}{section.4.2}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {4.2.1}RS232}{7}{subsection.4.2.1}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {4.2.2}RS485}{7}{subsection.4.2.2}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {4.2.3}CAN}{7}{subsection.4.2.3}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {4.2.4}Ethernet}{7}{subsection.4.2.4}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {4.2.5}I2C}{7}{subsection.4.2.5}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {4.2.6}SPI}{7}{subsection.4.2.6}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {4.3}Protokolle}{7}{section.4.3}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {4.3.1}Modbus}{7}{subsection.4.3.1}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {4.3.2}Profibus}{7}{subsection.4.3.2}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {4.3.3}TCP/IP}{7}{subsection.4.3.3}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {4.3.4}MQTT}{7}{subsection.4.3.4}%
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{\numberline {5}Grafische Benutzeroberfläche}{8}{chapter.5}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {5.1}Grundlagen}{8}{section.5.1}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {5.1.1}Hardware}{8}{subsection.5.1.1}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {5.1.2}Model-View-Presenter Struktur}{8}{subsection.5.1.2}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {5.2}Material Design}{8}{section.5.2}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {5.2.1}Farbsystem}{8}{subsection.5.2.1}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {5.2.2}Layoutsystem}{8}{subsection.5.2.2}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {5.2.3}Typografiesystem}{8}{subsection.5.2.3}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {5.2.4}Dark Theme}{8}{subsection.5.2.4}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {5.3}Framework}{8}{section.5.3}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {5.3.1}Embedded wizard}{8}{subsection.5.3.1}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {5.3.2}TouchGFX}{8}{subsection.5.3.2}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {5.3.3}LVGL}{8}{subsection.5.3.3}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {5.3.4}Qt for MCU}{8}{subsection.5.3.4}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {5.3.5}Electron und React}{8}{subsection.5.3.5}%
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{\numberline {6}Datenverarbeitung}{9}{chapter.6}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {6.1}JSON Datenformat}{9}{section.6.1}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {6.2}Serielle Schnittstelle mit Python}{9}{section.6.2}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {6.3}Dokumentengenerierung}{9}{section.6.3}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {6.3.1}Word}{9}{subsection.6.3.1}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {6.3.2}PDF}{9}{subsection.6.3.2}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {6.3.3}Excel}{9}{subsection.6.3.3}%
+\defcounter {refsection}{0}\relax 
+\contentsline {subsection}{\numberline {6.3.4}CSV}{9}{subsection.6.3.4}%
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{\numberline {7}Messsystemanalyse}{10}{chapter.7}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {7.1}Genauigkeit}{10}{section.7.1}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {7.2}Stabilität}{10}{section.7.2}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {7.3}Präzision}{10}{section.7.3}%
+\defcounter {refsection}{0}\relax 
+\contentsline {chapter}{\numberline {8}Zusammenfassung und Ausblick}{11}{chapter.8}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {8.1}Zusammenfassung}{11}{section.8.1}%
+\defcounter {refsection}{0}\relax 
+\contentsline {section}{\numberline {8.2}Ausblick}{11}{section.8.2}%

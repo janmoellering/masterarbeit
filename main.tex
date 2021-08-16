@@ -1,0 +1,143 @@
+\documentclass[12pt,a4paper,twoside]{report}
+	\makeatletter
+	\def\@makechapterhead#1{%
+  	%%%%\vspace*{50\p@}% %%% removed!
+  	{\parindent \z@ \raggedright \normalfont
+    	\ifnum \c@secnumdepth >\m@ne
+        	\huge\bfseries \@chapapp\space \thechapter
+        	\par\nobreak
+        	\vskip 20\p@
+    	\fi
+    	\interlinepenalty\@M
+    	\Huge \bfseries #1\par\nobreak
+    	\vskip 40\p@
+  	}}
+	\def\@makeschapterhead#1{%
+  	%%%%%\vspace*{50\p@}% %%% removed!
+  	{\parindent \z@ \raggedright
+    	\normalfont
+    	\interlinepenalty\@M
+    	\Huge \bfseries  #1\par\nobreak
+    	\vskip 40\p@
+  	}}
+	\makeatother
+
+\usepackage[utf8]{inputenc}
+\usepackage[german]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{makeidx}
+\usepackage{graphicx}
+    \graphicspath{ {./images/} }
+\usepackage[hidelinks]{hyperref}
+	\hypersetup{
+		colorlinks,
+		allcolors=black
+	}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{pdfpages}
+\usepackage{wrapfig}
+\usepackage{kpfonts}
+\usepackage[a4paper, width=150mm, top=25mm, bottom=25mm, bindingoffset=6mm]{geometry}
+\usepackage{fancybox}
+\usepackage{fancyvrb}
+\usepackage{fancyhdr}
+    \pagestyle{fancy}
+    \fancyhead{}
+    \fancyhead[RO,LE]{Kapitel \thechapter}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{acronym}
+\usepackage{csquotes}
+\usepackage[backend=biber, bibencoding=utf8, style=ieee, dashed=false]{biblatex}
+\addbibresource{bibliography/bib.bib}
+
+\title{Konzeptionierung und Realisierung eines Einzelprüfstands für Buchholz- und Gasrelais}
+\author{Jan Möllering}
+\date{24.02.2020}
+
+
+\begin{document}
+\emergencystretch 3em
+
+\includepdf{../Musterdeckblatt_Master.pdf}
+
+\chapter*{Eidesstattliche Erklärung}
+\thispagestyle{empty}
+Hiermit erkläre ich, dass ich die vorliegende Arbeit eigenständig und ohne fremde Hilfe angefertigt habe. Textpassagen, die wörtlich oder dem Sinn nach auf Publikationen oder Vorträgen anderer Autoren beruhen, sind als solche kenntlich gemacht.
+\\
+\noindent
+Die Arbeit wurde bisher keiner anderen Prüfungsbehörde vorgelegt und auch noch nicht veröffentlicht.
+
+\vspace{4cm}
+
+\hspace{2cm} Ort, Datum \hfill Unterschrift \hspace{2cm}
+
+\chapter*{Abstract}
+\thispagestyle{empty}
+Diese Arbeit beschäftigt sich mit der Konzeptionierung und Realisierung eines Einzelprüfstands für Buchholz- und Gasrelais. Es wird die Elektronik und die Software entwickelt und erklärt. Teile des fertigen Prüfstands werden auf ihre Funktionen überprüft und die Testergebnisse vorgestellt.
+\\
+\\
+\\
+\\
+\\
+This Thesis is about the development of a concept of a test bench and its implementation. The test bench is for buchholz- and gasrelays. The electronics and software are developed and explained. Parts of the finished test bench are being tested. The results will be presented.
+
+\setcounter{tocdepth}{2}
+\tableofcontents
+\thispagestyle{empty}
+\newpage
+\pagenumbering{Roman}
+\addtocontents{toc}{\protect\thispagestyle{empty}}
+
+
+\addcontentsline{toc}{chapter}{Tabellenverzeichnis}
+\listoftables
+\newpage
+
+\addcontentsline{toc}{chapter}{Abbildungsverzeichnis}
+\listoffigures
+
+\addcontentsline{toc}{chapter}{Abkürzungsverzeichnis}
+\chapter*{Abkürzungsverzeichnis}
+\input{chapters/Abbildungsverzeichnis}
+\newpage
+
+\chapter{Motivation und Aufgabenstellung}
+\pagenumbering{arabic}
+\setcounter{page}{1}
+\input{chapters/01}
+
+\chapter{Messtechnik}
+\input{chapters/02}
+
+\chapter{Mikrocontroller-Programmierung}
+\input{chapters/03}
+
+\chapter{Kommunikation}
+\input{chapters/04}
+
+\chapter{Grafische Benutzeroberfläche}
+\input{chapters/05}
+
+\chapter{Datenverarbeitung}
+\input{chapters/06}
+
+\chapter{Messsystemanalyse}
+\input{chapters/07.tex}
+
+\chapter{Zusammenfassung und Ausblick}
+\input{chapters/08}
+
+\printbibliography
+
+\appendix
+
+
+
+\end{document}
